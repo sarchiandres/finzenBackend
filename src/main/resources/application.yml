@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/FinZen?useSSL=false&serverTimezone=UTC
+    username: root
+    password: sarchi2006
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+    open-in-view: false
+  ai:
+    openai:
+      api-key: ${GPT}
+      chat:
+        options:
+          model: gpt-4o
+aws:
+  region:  us-east-2
+  bucket-name: imagenes-finzen
+  access-key: ${AWS_ACC_KEY}
+  secret-key: ${AWS_SEC_KEY}
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.springframework.web: debug
+    org.springframework.ai: debug
+    software.amazon.awssdk: debug
+    org.springframework.core.env: debug
