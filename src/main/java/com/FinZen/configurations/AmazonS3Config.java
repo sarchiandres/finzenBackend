@@ -13,13 +13,13 @@ public class AmazonS3Config {
 
     
 
-    @Value("${aws.region}")
+    @Value("${spring.aws.region}")
     private String region;
 
-    @Value("${aws.access-key}")
+    @Value("${spring.aws.access-key}")
     private String accessKey;
 
-    @Value("${aws.secret-key}")
+    @Value("${spring.aws.secret-key}")
     private String secretKey;
 
     @Bean

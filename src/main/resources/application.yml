@@ -7,6 +7,7 @@ spring:
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,22 +18,61 @@ spring:
         jdbc:
           batch_size: 20
     open-in-view: false
+
   ai:
     openai:
       api-key: ${GPT}
       chat:
         options:
           model: gpt-4o
-aws:
-  region:  us-east-2
-  bucket-name: imagenes-finzen
-  access-key: ${AWS_ACC_KEY}
-  secret-key: ${AWS_SEC_KEY}
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
-    org.springframework.web: debug
-    org.springframework.ai: debug
-    software.amazon.awssdk: debug
-    org.springframework.core.env: debug
+
+  
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: finzencompanyco@gmail.com
+    password: ${EMAIL_KEY}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+        debug: true  # Cambiar a true solo para debugging
+
+
+
+  app:
+    jwtSecret: ${JWK_SECRET}
+    jwtExpirationMs: 3600000 
+
+  aws:
+    region: us-east-2
+    bucket-name: imagenes-finzen
+    access-key: ${AWS_ACC_KEY}
+    secret-key: ${AWS_SEC_KEY}
+#
+
+  logging:
+    level:
+      org.hibernate.SQL: debug
+      org.hibernate.type.descriptor.sql.BasicBinder: trace
+      org.springframework.web: debug
+      org.springframework.ai: debug
+      software.amazon.awssdk: debug
+      org.springframework.core.env: debug
+
+# --- CORS YA NO VA BAJO spring: -------------
+cors:
+  allowed-origins: http://localhost:5173
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 3600

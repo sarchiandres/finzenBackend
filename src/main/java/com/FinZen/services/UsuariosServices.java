@@ -1,6 +1,7 @@
 package com.FinZen.services;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,21 +10,22 @@ import org.springframework.stereotype.Service;
 import com.FinZen.models.DTOS.UsuarioDto;
 import com.FinZen.models.Entities.TipoUsuario;
 import com.FinZen.models.Entities.Usuarios;
+import com.FinZen.payload.FinZenException;
 import com.FinZen.repository.TipoUsuarioRepository;
 import com.FinZen.repository.UsuariosRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UsuariosServices {
 
     @Autowired
     private  UsuariosRepository usuariosRepository;
-
     @Autowired
     private  S3Service s3Service;
-
     @Autowired
-
     private TipoUsuarioRepository tipoUsuarioRepository;
+    @Autowired
+    private  PasswordEncoder passwordEncoder;
 
     // method to add user
 
@@ -42,15 +44,13 @@ public class UsuariosServices {
         }
     
 
-        TipoUsuario tipoUsuario = null; 
-          
-        if (usuarioDto.getTipoUsuario() != null) {
-            tipoUsuario = tipoUsuarioRepository.findById(usuarioDto.getTipoUsuario())
-                    .orElseThrow(() -> new RuntimeException("Tipo de usuario no encontrado"));
-        } else {
-            tipoUsuario = tipoUsuarioRepository.findById(1L) 
-                    .orElseThrow(() -> new RuntimeException("Tipo de usuario predeterminado no encontrado"));
+        String tipoUsuarioNombre = usuarioDto.getTipoUsuario() != null ? usuarioDto.getTipoUsuario().toUpperCase() : "USUARIO";
+         if (!Arrays.asList("USUARIO", "ADMINITRADOR").contains(tipoUsuarioNombre)) {
+            throw new FinZenException("Rol inválido: " + tipoUsuarioNombre + ". Debe ser 'USUARIO' o 'ADMINITRADOR'");
         }
+        
+
+
         
         String urlImagen = null;
 
@@ -63,12 +63,14 @@ public class UsuariosServices {
             }
         }
 
+
+        
         
 
         Usuarios usuario = new Usuarios();
         usuario.setNombre(usuarioDto.getNombre());
         usuario.setCorreo(usuarioDto.getCorreo());
-        usuario.setContrasena(usuarioDto.getContrasena());
+        usuario.setContrasena(passwordEncoder.encode(usuarioDto.getContrasena()));
         usuario.setNumeroDocumento(usuarioDto.getNumeroDocumento());
         usuario.setPaisResidencia(usuarioDto.getPaisResidencia());
         usuario.setIngresoMensual(usuarioDto.getIngresoMensual());
@@ -77,11 +79,11 @@ public class UsuariosServices {
         usuario.setTipoDocumento(usuarioDto.getTipoDocumento());
         usuario.setTipoPersona(usuarioDto.getTipoPersona());
         usuario.setUrlImg(urlImagen); 
+
+        TipoUsuario tipoUsuario = tipoUsuarioRepository.findByNombre(tipoUsuarioNombre)
+                .orElseThrow(() -> new FinZenException("El tipo de usuario '" + tipoUsuarioNombre + "' no existe"));
         usuario.setTipoUsuario(tipoUsuario);
-
-
         
-
         return usuariosRepository.save(usuario);
     }
 
@@ -93,9 +95,6 @@ public class UsuariosServices {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
-
-
-   
 
     // method to delete user by id
     public String deleteById(Long id) {

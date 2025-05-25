@@ -8,12 +8,15 @@ import com.FinZen.models.Entities.Gastos;
 import com.FinZen.models.Entities.Ingresos;
 import com.FinZen.models.Entities.Meta;
 import com.FinZen.models.Entities.Presupuesto;
+import com.FinZen.models.Entities.Usuarios;
 import com.FinZen.repository.CuentaRepository;
 import com.FinZen.repository.DeudaRepository;
 import com.FinZen.repository.GastosRepository;
 import com.FinZen.repository.IngresosRepository;
 import com.FinZen.repository.MetaRepository;
 import com.FinZen.repository.PresupuestoRepository;
+import com.FinZen.repository.UsuariosRepository;
+
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +47,9 @@ public class GptServices {
     @Autowired
     private DeudaRepository deudaRepository;
 
+    @Autowired
+    private UsuariosServices usuariosServices;
+
 
     public PrompResponseDto sendRequestToOpenAi(PromptRequestDto promptRequestDto, Long idUsuario) {
         if (promptRequestDto.prompt() == null || promptRequestDto.prompt().trim().isEmpty()) {
@@ -56,10 +62,12 @@ public class GptServices {
         String contextoPresupuestos = ObtenerPresupuestosporUsuario(idUsuario);
         String contextoCuentas = ObtenerContextoPorcuenta(idUsuario);
         String contextoDeudas = ObtenerDeudaPorIdUsuario(idUsuario);
+        String contextoUsuer =conextoUser(idUsuario);
+
 
         String response = chatClient.prompt()
                 .system("""
-Eres FinZenIA, un asistente virtual financiero especializado del aplicativo FinZen.
+Eres Zennin, una ardilla que esta como asistente virtual financiero especializado del aplicativo FinZen.
 
 Tu objetivo es ayudar a los usuarios a comprender su situación financiera. Puedes responder preguntas relacionadas con:
 
@@ -68,13 +76,14 @@ Tu objetivo es ayudar a los usuarios a comprender su situación financiera. Pued
 - Tipos de cuentas.
 - Recomendaciones financieras.
 - Todo lo que tenga que ver con finanzas.
+- cada vez que te dirijas al usuario primero hazlo por el nombre o por el nombre de usuario
 
 Tu moneda de referencia es el peso colombiano (COP). Si mencionas cantidades, hazlo en COP.
 
 Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde con:
 "Lo siento, no puedo ayudarte con esa consulta."
 """)
-                .user("Datos financieros del usuario:\n" + contextoGastos + "\n" + contextoIngresos +
+                .user("Datos  personales y financieros del usuario:\n"+contextoUsuer + contextoGastos + "\n" + contextoIngresos +
                         contextoMetas+contextoPresupuestos+contextoCuentas+contextoDeudas+"\n\nPregunta del usuario: " + promptRequestDto.prompt())
                 .call()
                 .content();
@@ -91,7 +100,7 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
 
         String response = chatClient.prompt()
                 .system("""
-Eres FinZenIA, un asistente virtual financiero especializado del aplicativo FinZen.
+Eres Zennin, un asistente virtual financiero especializado del aplicativo FinZen.
 
 Tu objetivo es ayudar a los usuarios a comprender su situación financiera. Puedes responder preguntas relacionadas con:
 
@@ -222,6 +231,22 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
         return contexto.toString();
     }
 
+    public String conextoUser(Long id) {
+    
+        Usuarios usuario = usuariosServices.finById(id);
+        if (usuario == null) {
+            return "no se encontro el usuario ";
+        }
+        StringBuilder contexto = new StringBuilder("datos del usuario:\n");
+        contexto.append(usuario.getNombre())
+                .append(usuario.getCorreo())
+                .append(usuario.getIngresoMensual())
+                .append(usuario.getNombreUsuario())
+                .append(usuario.getTipoPersona())
+                .append(usuario.getPaisResidencia());
+                
+        return contexto.toString();
+    }
 
 
 
