@@ -15,7 +15,7 @@ import com.FinZen.repository.GastosRepository;
 import com.FinZen.repository.IngresosRepository;
 import com.FinZen.repository.MetaRepository;
 import com.FinZen.repository.PresupuestoRepository;
-import com.FinZen.repository.UsuariosRepository;
+
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,6 +121,31 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
 
         return new PrompResponseDto(response);
     }
+
+
+    public PrompResponseDto notificaTions(Long idUsuario) {
+        String contextoGastos = obtenerContextoGastosPorUsuario(idUsuario);
+        String contextoIngresos = obtenerContextoIngresosPorUsuario(idUsuario);
+        String contextoMetas = obtenerContextoMetasPorUsuario(idUsuario);
+        String contextoPresupuestos = ObtenerPresupuestosporUsuario(idUsuario);
+        String contextoCuentas = ObtenerContextoPorcuenta(idUsuario);
+        String contextoDeudas = ObtenerDeudaPorIdUsuario(idUsuario);
+        String contextoUsuer = conextoUser(idUsuario);
+    
+        String response = chatClient.prompt()
+                .system("""
+                        Dame un consejo segun mis datos siempre llamame por mi nombre 
+                        """)
+                .user("Datos  personales y financieros del usuario:\n"+contextoUsuer + contextoGastos + "\n" + contextoIngresos +
+                        contextoMetas+contextoPresupuestos+contextoCuentas+contextoDeudas+"\n\nPregunta del usuario: " )
+                .call()
+                .content();
+        
+        
+        return new PrompResponseDto(response);
+    }
+
+
 
 
 
