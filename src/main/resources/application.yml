@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/FinZen?useSSL=false&serverTimezone=UTC
     username: root
-    password: sarchi2006
+    password: 1091885063
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       connection-timeout: 30000
