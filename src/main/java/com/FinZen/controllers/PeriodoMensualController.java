@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FinZen.models.Entities.Gastos;
-import com.FinZen.models.Entities.PeriodoMesual;
-import com.FinZen.models.Entities.Usuarios;
+
 import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.PeridoMensualServices;
 
