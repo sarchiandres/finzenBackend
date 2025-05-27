@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.FinZen.models.DTOS.UsuarioDto;
 import com.FinZen.models.Entities.Usuarios;
+import com.FinZen.payload.SignupRequest;
 import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.UsuariosServices;
 
@@ -33,7 +34,7 @@ public class UsuariosControllers {
 
 // para crear el usuario
     @PostMapping
-    public ResponseEntity<?> saveUsuario(@RequestBody UsuarioDto usuarioDto) {
+    public ResponseEntity<?> saveUsuario(@RequestBody SignupRequest usuarioDto) {
         try {
             usuariosServices.saveUsuario(usuarioDto);
             return ResponseEntity.ok("Usuario creado exitosamente");
