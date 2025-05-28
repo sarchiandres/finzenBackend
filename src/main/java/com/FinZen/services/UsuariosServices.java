@@ -32,24 +32,24 @@ public class UsuariosServices {
 
     // method to add user
 
-    public Map<String, Object>  saveUsuario (SignupRequest usuarioDto) {
+    public Map<String, Object>  saveUsuario (SignupRequest signupRequest) {
 
-        if (usuariosRepository.findByNombreUsuario(usuarioDto.getNombreUsuario()).isPresent()) {
-            throw new RuntimeException("El nombre de usuario " + usuarioDto.getNombreUsuario() + " ya existe");
+        if (usuariosRepository.findByNombreUsuario(signupRequest.getNombreUsuario()).isPresent()) {
+            throw new RuntimeException("El nombre de usuario " + signupRequest.getNombreUsuario() + " ya existe");
         }
 
-        if (usuariosRepository.findByNumeroDocumento(usuarioDto.getNumeroDocumento()).isPresent()) {
-            throw new RuntimeException("El usuario con documento " + usuarioDto.getNumeroDocumento() + " ya existe");
+        if (usuariosRepository.findByNumeroDocumento(signupRequest.getNumeroDocumento()).isPresent()) {
+            throw new RuntimeException("El usuario con documento " + signupRequest.getNumeroDocumento() + " ya existe");
         }
 
-        if (usuariosRepository.findByCorreo(usuarioDto.getCorreo()).isPresent()) {
+        if (usuariosRepository.findByCorreo(signupRequest.getCorreo()).isPresent()) {
             throw new RuntimeException("El usuario con este correo ya existe");
         }
     
 
-        String tipoUsuarioNombre = usuarioDto.getRole() != null ? usuarioDto.getRole().toUpperCase() : "USUARIO";
-         if (!Arrays.asList("USUARIO", "ADMINITRADOR").contains(tipoUsuarioNombre)) {
-            throw new FinZenException("Rol inválido: " + tipoUsuarioNombre + ". Debe ser 'USUARIO' o 'ADMINITRADOR'");
+        String tipoUsuarioNombre = signupRequest.getRole() != null ? signupRequest.getRole().toUpperCase() : "USUARIO";
+         if (!Arrays.asList("USUARIO", "ADMINISTRADOR").contains(tipoUsuarioNombre)) {
+            throw new FinZenException("Rol inválido: " + tipoUsuarioNombre + ". Debe ser 'USUARIO' o 'ADMINISTRADOR'");
         }
         
 
@@ -58,9 +58,9 @@ public class UsuariosServices {
         String urlImagen = null;
 
   
-        if (usuarioDto.getUrlImg() != null && !usuarioDto.getUrlImg().isEmpty()) {
+        if (signupRequest.getUrlImg() != null && !signupRequest.getUrlImg().isEmpty()) {
             try {
-                urlImagen = s3Service.subirArchivo(usuarioDto.getUrlImg());
+                urlImagen = s3Service.subirArchivo(signupRequest.getUrlImg());
             } catch (IOException e) {
                 throw new RuntimeException("Error al subir la imagen a S3: " + e.getMessage(), e);
             }
@@ -71,16 +71,16 @@ public class UsuariosServices {
         
 
         Usuarios usuario = new Usuarios();
-        usuario.setNombre(usuarioDto.getNombre());
-        usuario.setCorreo(usuarioDto.getCorreo());
-        usuario.setContrasena(passwordEncoder.encode(usuarioDto.getContrasena()));
-        usuario.setNumeroDocumento(usuarioDto.getNumeroDocumento());
-        usuario.setPaisResidencia(usuarioDto.getPaisResidencia());
-        usuario.setIngresoMensual(usuarioDto.getIngresoMensual());
-        usuario.setMetaActual(usuarioDto.getMetaActual());
-        usuario.setNombreUsuario(usuarioDto.getNombreUsuario());
-        usuario.setTipoDocumento(usuarioDto.getTipoDocumento());
-        usuario.setTipoPersona(usuarioDto.getTipoPersona());
+        usuario.setNombre(signupRequest.getNombre());
+        usuario.setCorreo(signupRequest.getCorreo());
+        usuario.setContrasena(passwordEncoder.encode(signupRequest.getContrasena()));
+        usuario.setNumeroDocumento(signupRequest.getNumeroDocumento());
+        usuario.setPaisResidencia(signupRequest.getPaisResidencia());
+        usuario.setIngresoMensual(signupRequest.getIngresoMensual());
+        usuario.setMetaActual(signupRequest.getMetaActual());
+        usuario.setNombreUsuario(signupRequest.getNombreUsuario());
+        usuario.setTipoDocumento(signupRequest.getTipoDocumento());
+        usuario.setTipoPersona(signupRequest.getTipoPersona());
         usuario.setUrlImg(urlImagen); 
 
         TipoUsuario tipoUsuario = tipoUsuarioRepository.findByNombre(tipoUsuarioNombre)
