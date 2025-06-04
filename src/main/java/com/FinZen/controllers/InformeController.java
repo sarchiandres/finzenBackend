@@ -1,19 +1,15 @@
 package com.FinZen.controllers;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 import com.FinZen.models.DTOS.InformeDto;
 import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.InformeService;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.List;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/finzen/informes")
@@ -28,7 +24,6 @@ public class InformeController {
     @PostMapping("/generar")
     public ResponseEntity<?> generarInforme(HttpServletRequest request) {
         String token = jwtUtils.getJwtFromRequest(request);
-
         if (token != null && jwtUtils.validateJwtToken(token)) {
             Long userId = jwtUtils.getUserIdFromJwtToken(token);
             try {
@@ -44,13 +39,14 @@ public class InformeController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getInformes(HttpServletRequest request) {
+    public ResponseEntity<?> getInformes(HttpServletRequest request,
+                                        @RequestParam(value = "usuarioId", required = false) Long usuarioId) {
         String token = jwtUtils.getJwtFromRequest(request);
-
         if (token != null && jwtUtils.validateJwtToken(token)) {
-            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            Long authUserId = jwtUtils.getUserIdFromJwtToken(token);
+            Long targetUserId = (usuarioId != null) ? usuarioId : authUserId;
             try {
-                List<InformeDto> informes = informeService.getInformesByUsuarioId(userId);
+                List<InformeDto> informes = informeService.getInformesByUsuarioId(targetUserId);
                 return ResponseEntity.ok(informes);
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -62,13 +58,15 @@ public class InformeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getInformeById(HttpServletRequest request, @PathVariable Long id) {
+    public ResponseEntity<?> getInformeById(HttpServletRequest request,
+    @PathVariable("id") Long id,
+        @RequestParam(value = "usuarioId", required = false) Long usuarioId) {
         String token = jwtUtils.getJwtFromRequest(request);
-
         if (token != null && jwtUtils.validateJwtToken(token)) {
-            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            Long authUserId = jwtUtils.getUserIdFromJwtToken(token);
+            Long targetUserId = (usuarioId != null) ? usuarioId : authUserId;
             try {
-                InformeDto informe = informeService.getInformeByIdAndUsuario(id, userId);
+                InformeDto informe = informeService.getInformeByIdAndUsuario(id, targetUserId);
                 return ResponseEntity.ok(informe);
             } catch (RuntimeException e) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -82,10 +80,36 @@ public class InformeController {
                 .body("Token inválido o no proporcionado.");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteInforme(HttpServletRequest request, @PathVariable Long id) {
-        String token = jwtUtils.getJwtFromRequest(request);
+    @GetMapping("/admin/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> getInformeByIdForAdmin(@PathVariable("id") Long id) {
+        try {
+            InformeDto informe = informeService.getInformeByIdForAdmin(id);
+            return ResponseEntity.ok(informe);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener el informe: " + e.getMessage());
+        }
+    }
 
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> getAllInformesForAdmin() {
+        try {
+            List<InformeDto> informes = informeService.getAllInformesForAdmin();
+            return ResponseEntity.ok(informes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener los informes: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteInforme(HttpServletRequest request, @PathVariable("id") Long id) {
+        String token = jwtUtils.getJwtFromRequest(request);
         if (token != null && jwtUtils.validateJwtToken(token)) {
             Long userId = jwtUtils.getUserIdFromJwtToken(token);
             try {
@@ -106,7 +130,6 @@ public class InformeController {
     @DeleteMapping
     public ResponseEntity<?> deleteAllInformes(HttpServletRequest request) {
         String token = jwtUtils.getJwtFromRequest(request);
-
         if (token != null && jwtUtils.validateJwtToken(token)) {
             Long userId = jwtUtils.getUserIdFromJwtToken(token);
             try {

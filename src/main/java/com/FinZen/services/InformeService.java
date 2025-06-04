@@ -3,6 +3,9 @@ package com.FinZen.services;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import com.FinZen.models.DTOS.InformeDto;
 import com.FinZen.models.Entities.Informe;
@@ -48,6 +51,15 @@ public class InformeService {
     }
 
     public List<InformeDto> getInformesByUsuarioId(Long usuarioId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authUserId = getUserIdFromAuth(auth);
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMINISTRADOR"));
+
+        if (!isAdmin && !authUserId.equals(usuarioId)) {
+            throw new RuntimeException("Acceso denegado: No puedes ver informes de otros usuarios");
+        }
+
         usuariosRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return informeRepository.findByUsuarioIdOrderByIdInformeDesc(usuarioId)
@@ -57,12 +69,45 @@ public class InformeService {
     }
 
     public InformeDto getInformeByIdAndUsuario(Long informeId, Long usuarioId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authUserId = getUserIdFromAuth(auth);
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMINISTRADOR"));
+
+        if (!isAdmin && !authUserId.equals(usuarioId)) {
+            throw new RuntimeException("Acceso denegado: No puedes ver informes de otros usuarios");
+        }
+
         Informe informe = informeRepository.findByIdInformeAndUsuarioId(informeId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Informe no encontrado o no pertenece al usuario"));
         return toInformeDto(informe);
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public InformeDto getInformeByIdForAdmin(Long informeId) {
+        Informe informe = informeRepository.findById(informeId)
+                .orElseThrow(() -> new RuntimeException("Informe no encontrado"));
+        return toInformeDto(informe);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public List<InformeDto> getAllInformesForAdmin() {
+        return informeRepository.findAll()
+                .stream()
+                .map(this::toInformeDto)
+                .collect(Collectors.toList());
+    }
+
     public String deleteInformeByIdAndUsuario(Long informeId, Long usuarioId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authUserId = getUserIdFromAuth(auth);
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMINISTRADOR"));
+
+        if (!isAdmin && !authUserId.equals(usuarioId)) {
+            throw new RuntimeException("Acceso denegado: No puedes eliminar informes de otros usuarios");
+        }
+
         Informe informe = informeRepository.findByIdInformeAndUsuarioId(informeId, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Informe no encontrado o no pertenece al usuario"));
         informeRepository.delete(informe);
@@ -70,6 +115,15 @@ public class InformeService {
     }
 
     public String deleteAllInformesByUsuario(Long usuarioId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authUserId = getUserIdFromAuth(auth);
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMINISTRADOR"));
+
+        if (!isAdmin && !authUserId.equals(usuarioId)) {
+            throw new RuntimeException("Acceso denegado: No puedes eliminar informes de otros usuarios");
+        }
+
         usuariosRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         List<Informe> informes = informeRepository.findByUsuarioId(usuarioId);
@@ -81,6 +135,15 @@ public class InformeService {
     }
 
     public InformeDto getInformeMasReciente(Long usuarioId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long authUserId = getUserIdFromAuth(auth);
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMINISTRADOR"));
+
+        if (!isAdmin && !authUserId.equals(usuarioId)) {
+            throw new RuntimeException("Acceso denegado: No puedes ver informes de otros usuarios");
+        }
+
         List<InformeDto> informes = getInformesByUsuarioId(usuarioId);
         if (informes.isEmpty()) {
             throw new RuntimeException("No se encontraron informes para el usuario");
@@ -94,5 +157,14 @@ public class InformeService {
         dto.setIdUsuario(informe.getUsuario() != null ? informe.getUsuario().getIdUsuario() : null);
         dto.setDescripcion(informe.getDescripcion());
         return dto;
+    }
+
+    private Long getUserIdFromAuth(Authentication auth) {
+        String userIdStr = auth.getName();
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("ID de usuario inválido en el token");
+        }
     }
 }

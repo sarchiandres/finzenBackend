@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
- @RestController
- @RequestMapping("/finzen/cuentas")
+@RestController
+@RequestMapping("/finzen/cuentas")
 public class CuentaController {
     @Autowired
     private CuentaServices cuentaServices;
@@ -66,9 +66,9 @@ public class CuentaController {
                 cuentaServices.createAccount(cuentas);
             return ResponseEntity.ok("Cuenta creada exitosamente");
                 
-            } 
+            }
             
-       
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error al crear la cuenta: " );
         
     }
