@@ -31,8 +31,7 @@ public class CuentaController {
     public String token;
 
 
-    // metodo para traer la cuentas por id de e usuarioo 
-
+    // metodo para traer la cuentas por id de e usuarioo
     @GetMapping
     public ResponseEntity<?> getCuentas(HttpServletRequest request) {
         token = jwtUtils.getJwtFromRequest(request);
@@ -45,9 +44,9 @@ public class CuentaController {
                 
         return ResponseEntity.ok(cuentas);
     }
-
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
+
 
     // metodo para crear la cuenta 
     @PostMapping
@@ -67,10 +66,7 @@ public class CuentaController {
             return ResponseEntity.ok("Cuenta creada exitosamente");
                 
             }
-            
-
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error al crear la cuenta: " );
-        
     }
     
     // metodo para actualizar la cuenta
@@ -84,6 +80,8 @@ public class CuentaController {
         }
 
     }
+
+
     // metodo para eliminar la cuenta
     @DeleteMapping("{idCuenta}")
     public ResponseEntity<?> deleteAccount(@PathVariable Long idCuenta) {
@@ -94,6 +92,4 @@ public class CuentaController {
             return ResponseEntity.status(500).body("Error al eliminar la cuenta: " + e.getMessage());
         }
     }
-    
-    
 }

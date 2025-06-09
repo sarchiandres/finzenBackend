@@ -20,7 +20,6 @@ import lombok.Data;
 @Data
 public class TipoUsuario {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_tipousuario")
@@ -32,7 +31,5 @@ public class TipoUsuario {
     @OneToMany(mappedBy = "tipoUsuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Usuarios> usuarios = new ArrayList<>();
-
-    
     
 }

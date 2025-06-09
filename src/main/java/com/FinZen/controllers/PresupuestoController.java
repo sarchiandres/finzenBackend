@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/finzen/presupuesto")
-public class PresupController {
+public class PresupuestoController {
     
     @Autowired
     private PresupuestoServices presupuestoServices;
@@ -33,6 +33,7 @@ public class PresupController {
         }
       
     }
+
 // para trear el presupuesto por id de la cuenta
     @GetMapping("{idCuenta}")
     public ResponseEntity<?> getByPresupuesto(@PathVariable Long idCuenta) {
@@ -53,8 +54,8 @@ public class PresupController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al actualizar el presupuesto: " + e.getMessage());
         }
-
     }
+
 // opara eliminar el presupuesto por id
     @DeleteMapping("{id}")
     public ResponseEntity<?> deletePresupuesto(@PathVariable Long id) {
@@ -65,6 +66,4 @@ public class PresupController {
             return ResponseEntity.status(500).body("Error al eliminar el presupuesto: " + e.getMessage());
         }
     }
-    
-    
 }
