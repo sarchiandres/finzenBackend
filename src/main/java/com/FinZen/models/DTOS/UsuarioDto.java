@@ -13,7 +13,7 @@ public class UsuarioDto {
     private Long numeroDocumento;
     private String paisResidencia;
     private Long ingresoMensual;
-    private Boolean metaActual;
+    private Long metaActual;
     private String nombreUsuario;
     private String tipoDocumento;
     private String tipoPersona;

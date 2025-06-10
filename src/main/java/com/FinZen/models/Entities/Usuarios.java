@@ -1,6 +1,5 @@
 package com.FinZen.models.Entities;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,20 +41,19 @@ public class Usuarios {
     @Column(name = "pais_residencia", length = 250)
     private String paisResidencia;
 
-    @Column(name = "ingreso_mensual", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    @Column(name = "ingreso_mensual", nullable = false)
     private Long ingresoMensual;
 
-    @Column(name = "meta_actual", columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private Boolean metaActual;
+    @Column(name = "meta_actual", nullable = false)
+    private Long metaActual; // Cambiado de Boolean a Long
 
     @Column(name = "nombre_usuario", length = 50)
     private String nombreUsuario;
 
- 
-    @Column(name = "tipo_documento", columnDefinition = "ENUM('CEDULA','PASAPORTE', 'TARJETA_DE_IDENTIDAD', 'CEDULA_EXTRANJERA') DEFAULT 'cedula'")
+    @Column(name = "tipo_documento", columnDefinition = "ENUM('CEDULA','PASAPORTE', 'TARJETA_DE_IDENTIDAD', 'CEDULA_EXTRANJERA') DEFAULT 'CEDULA'")
     private String tipoDocumento;
 
-    @Column(name = "tipo_persona", columnDefinition = "ENUM('padre_de_familia', 'joven_profesional', 'jubilado', 'personalizado',emprendedor)")
+    @Column(name = "tipo_persona", columnDefinition = "ENUM('padre_de_familia', 'joven_profesional', 'jubilado', 'personalizado','emprendedor')")
     private String tipoPersona;
 
     @Column(name = "url_img", length = 200)
@@ -78,7 +76,7 @@ public class Usuarios {
     @JsonIgnore
     private List<PeriodoMesual> periodos = new ArrayList<>();
 
-   @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Soporte> soportes = new ArrayList<>();
 }
