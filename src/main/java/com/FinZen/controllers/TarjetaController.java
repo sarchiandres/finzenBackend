@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/finzen/tarjetas")
+@CrossOrigin(origins = "*") // Permitir CORS si es necesario
 public class TarjetaController {
 
     @Autowired
@@ -44,28 +45,39 @@ public class TarjetaController {
             Long userId = jwtUtils.getUserIdFromJwtToken(token);
             tarjetaDto.setIdUsuario(userId);
             Tarjeta tarjeta = tarjetaServices.createTarjeta(tarjetaDto);
-            return ResponseEntity.ok("Tarjeta creada exitosamente");
+            return ResponseEntity.ok(tarjeta);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error al crear la tarjeta: Token inválido");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateTarjeta(@PathVariable Long id, @RequestBody TarjetaDto tarjetaDto) {
-        try {
-            tarjetaServices.updateTarjeta(id, tarjetaDto);
-            return ResponseEntity.ok("Tarjeta actualizada exitosamente");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar la tarjeta: " + e.getMessage());
-        }
-    }
+    public ResponseEntity<?> updateTarjeta(@PathVariable Long id, @RequestBody TarjetaDto tarjetaDto, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTarjeta(@PathVariable Long id) {
-        try {
-            tarjetaServices.deleteTarjeta(id);
-            return ResponseEntity.ok("Tarjeta eliminada exitosamente");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar la tarjeta: " + e.getMessage());
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            try {
+                tarjetaServices.updateTarjeta(id, tarjetaDto);
+                return ResponseEntity.ok("Tarjeta Actualizada");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al actualizar la tarjeta: " + e.getMessage());
+            }
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTarjeta(@PathVariable Long id, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            try {
+                tarjetaServices.deleteTarjeta(id);
+                return ResponseEntity.ok("Tarjeta eliminada exitosamente");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al eliminar la tarjeta: " + e.getMessage());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 }

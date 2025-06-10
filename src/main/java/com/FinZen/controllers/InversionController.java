@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/finzen/inversiones")
+@CrossOrigin(origins = "*") // Permitir CORS si es necesario
 public class InversionController {
 
     @Autowired
@@ -44,28 +45,40 @@ public class InversionController {
             Long userId = jwtUtils.getUserIdFromJwtToken(token);
             inversionDto.setIdUsuario(userId);
             Inversion inversion = inversionServices.createInversion(inversionDto);
-            return ResponseEntity.ok("Inversión creada exitosamente");
+            return ResponseEntity.ok(inversion); // Devolver la inversión creada, no solo mensaje
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error al crear la inversión: Token inválido");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateInversion(@PathVariable Long id, @RequestBody InversionDto inversionDto) {
-        try {
-            inversionServices.updateInversion(id, inversionDto);
-            return ResponseEntity.ok("Inversión actualizada exitosamente");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar la inversión: " + e.getMessage());
+    public ResponseEntity<?> updateInversion(@PathVariable Long id, @RequestBody InversionDto inversionDto, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            try {
+                inversionServices.updateInversion(id, inversionDto);
+                return ResponseEntity.ok("Inversion Actualizada"); // Devolver la inversión actualizada
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al actualizar la inversión: " + e.getMessage());
+            }
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteInversion(@PathVariable Long id) {
-        try {
-            inversionServices.deleteInversion(id);
-            return ResponseEntity.ok("Inversión eliminada exitosamente");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar la inversión: " + e.getMessage());
+    public ResponseEntity<?> deleteInversion(@PathVariable Long id, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            try {
+                inversionServices.deleteInversion(id);
+                return ResponseEntity.ok("Inversión eliminada exitosamente");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al eliminar la inversión: " + e.getMessage());
+            }
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 }
