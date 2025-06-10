@@ -1,6 +1,5 @@
 package com.FinZen.models.Entities;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -17,7 +16,6 @@ import lombok.Data;
 @Entity
 @Table(name = "SOPORTE")
 public class Soporte {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_soporte")    

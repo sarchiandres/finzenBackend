@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.FinZen.models.DTOS.CuentaDto;
 import com.FinZen.models.Entities.Cuenta;
@@ -20,80 +21,79 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
-
- @RestController
- @RequestMapping("/finzen/cuentas")
+@RestController
+@RequestMapping("/finzen/cuentas")
+@CrossOrigin(origins = "*") // Permitir CORS si es necesario
 public class CuentaController {
+
     @Autowired
     private CuentaServices cuentaServices;
+
     @Autowired
     private JwtUtils jwtUtils;
-    public String token;
 
-
-    // metodo para traer la cuentas por id de e usuarioo 
-
+    // Método para traer las cuentas por id de usuario
     @GetMapping
     public ResponseEntity<?> getCuentas(HttpServletRequest request) {
-        token = jwtUtils.getJwtFromRequest(request);
+        String token = jwtUtils.getJwtFromRequest(request);
 
-    if (token != null && jwtUtils.validateJwtToken(token)) {
-        Long userId = jwtUtils.getUserIdFromJwtToken(token);
-
-        // Buscar al usuario en la base de datos
-        List<Cuenta> cuentas = cuentaServices.getAccountByUserId(userId);
-                
-        return ResponseEntity.ok(cuentas);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            List<Cuenta> cuentas = cuentaServices.getAccountByUserId(userId);
+            return ResponseEntity.ok(cuentas);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
-    }
-
-    // metodo para crear la cuenta 
+    // Método para crear la cuenta
     @PostMapping
-    public ResponseEntity<?>  createAccount(@RequestBody CuentaDto cuentaDto, HttpServletRequest request) {
+    public ResponseEntity<?> createAccount(@RequestBody CuentaDto cuentaDto, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
 
-            token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
 
-            if (token != null && jwtUtils.validateJwtToken(token)) {
-                Long userId = jwtUtils.getUserIdFromJwtToken(token);
-        
-                CuentaDto cuentas = new CuentaDto();
-                cuentas.setIdUsuario(userId);
-                cuentas.setMonto(cuentaDto.getMonto());
-                cuentas.setNombre(cuentaDto.getNombre());
-                
-                cuentaServices.createAccount(cuentas);
-            return ResponseEntity.ok("Cuenta creada exitosamente");
-                
-            } 
-            
-       
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error al crear la cuenta: " );
-        
-    }
-    
-    // metodo para actualizar la cuenta
-    @PutMapping("{id}")
-    public ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody CuentaDto cuentaDto) {
-        try {
-            cuentaServices.updCuenta(id, cuentaDto);
-            return ResponseEntity.ok("Cuenta actualizada exitosamente");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al actualizar la cuenta: " + e.getMessage());
+            // Establecer el userId en el DTO
+            cuentaDto.setIdUsuario(userId);
+
+            // Crear la cuenta y devolver la cuenta creada (no solo un mensaje)
+            Cuenta cuentaCreada = cuentaServices.createAccount(cuentaDto);
+            return ResponseEntity.ok(cuentaCreada);
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error al crear la cuenta: Token inválido");
+    }
 
-    }
-    // metodo para eliminar la cuenta
-    @DeleteMapping("{idCuenta}")
-    public ResponseEntity<?> deleteAccount(@PathVariable Long idCuenta) {
-        try {
-            cuentaServices.deleteAccount(idCuenta);
-            return ResponseEntity.ok("Cuenta eliminada exitosamente");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al eliminar la cuenta: " + e.getMessage());
+    // Método para actualizar la cuenta
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody CuentaDto cuentaDto, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            try {
+                Cuenta cuentaActualizada = cuentaServices.updCuenta(id, cuentaDto);
+                return ResponseEntity.ok(cuentaActualizada);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al actualizar la cuenta: " + e.getMessage());
+            }
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
-    
-    
+
+    // Método para eliminar la cuenta
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAccount(@PathVariable Long id, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            try {
+                cuentaServices.deleteAccount(id);
+                return ResponseEntity.ok("Cuenta eliminada exitosamente");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al eliminar la cuenta: " + e.getMessage());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
 }
