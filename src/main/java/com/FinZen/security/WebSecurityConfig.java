@@ -87,10 +87,16 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/finzen/auth/**","/finzen/gpt/noUser").permitAll()
+                        // Endpoints públicos (sin autenticación)
+                        .requestMatchers("/finzen/auth/**", "/finzen/gpt/noUser").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        
+                        // Endpoints de administrador
                         .requestMatchers("/finzen/categoria-presupuesto/**", "/finzen/analytics/**", "/actuator/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/finzen/presupuesto/**",
+                        
+                        // Endpoints que requieren autenticación (incluyendo /finzen/user/finances)
+                        .requestMatchers("/finzen/user/finances",
+                                "/finzen/presupuesto/**",
                                 "/finzen/informe/**",
                                 "/finzen/ingresos/**",
                                 "/finzen/metas/**",
@@ -101,6 +107,8 @@ public class WebSecurityConfig {
                                 "/finzen/tarjetas/**",
                                 "/finzen/inversiones/**",
                                 "/finzen/gpt/user").authenticated()
+                        
+                        // Cualquier otra request requiere autenticación
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

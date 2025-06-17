@@ -43,6 +43,16 @@ public class Presupuesto {
     private Cuenta cuenta;
 
     @ManyToOne
+    @JoinColumn(name = "id_trageta", referencedColumnName = "id_cuenta")
+    @JsonIgnore
+    private Tarjeta tarjeta;
+
+    @ManyToOne
+    @JoinColumn(name = "id_inversion", referencedColumnName = "id_cuenta")
+    @JsonIgnore
+    private Inversion inversion;
+
+    @ManyToOne
     @JoinColumn(name = "id_categoriapresupuesto", nullable = false)
     @JsonIgnore
     private CategoriaPresupuesto categoria;

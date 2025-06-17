@@ -10,6 +10,8 @@ public class PresupuestoDto {
     private String nombre;
     private BigDecimal montoAsignado;
     private Long idCuenta;
+    private Long idTarjeta;
+    private Long IdInversion;
     private Long idCategoriaPresupuesto;
     
 }

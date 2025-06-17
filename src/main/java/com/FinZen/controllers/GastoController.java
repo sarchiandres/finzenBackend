@@ -1,13 +1,24 @@
 package com.FinZen.controllers;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FinZen.models.DTOS.GastosDto;
+import com.FinZen.models.Entities.Gastos;
+import com.FinZen.models.Entities.Ingresos;
+import com.FinZen.repository.GastosRepository;
+import com.FinZen.repository.IngresosRepository;
+import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.GastosServices;
+import com.FinZen.services.UsuariosServices;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +36,21 @@ public class GastoController {
     
     @Autowired
     private GastosServices gastoServices;
+    // metodo para actiualizar los gastos por id
+     @Autowired
+    private JwtUtils jwtUtils;
+
+    public String token;
+
+    @Autowired
+    private IngresosRepository ingresosRepository;
+
+
+    @Autowired
+    private GastosRepository gastosRepository;
+
+    @Autowired
+    private UsuariosServices usuariosServices;
 
     // metodo para crear el gasto
     @PostMapping
@@ -36,7 +62,38 @@ public class GastoController {
             return ResponseEntity.status(500).body("Error al crear el gasto: " + e.getMessage());
         }
     }
-// metodo para actiualizar los gastos por id 
+
+
+    @GetMapping("/user/finances")
+    public ResponseEntity<?> getUserFinances(HttpServletRequest request) {
+        try {
+            token = jwtUtils.getJwtFromRequest(request);
+
+            if (token != null && jwtUtils.validateJwtToken(token)) {
+                Long userId = jwtUtils.getUserIdFromJwtToken(token);
+                
+                List<Ingresos> ingresos = ingresosRepository.findByUsuarioId(userId);
+                List<Gastos> gastos = gastosRepository.getGastosByUsuarioId(userId);
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("ingresos", ingresos);
+                response.put("gastos", gastos);
+                response.put("userId", userId);
+
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(401).body(Map.of(
+                    "error", "Token inválido o no proporcionado"
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "Error interno del servidor",
+                "message", e.getMessage()
+            ));
+        }
+    }
+
     @PutMapping("{id}")
     public ResponseEntity<?> putMethodName(@PathVariable Long id, @RequestBody GastosDto gastosDto) {
         try {

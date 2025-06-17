@@ -3,6 +3,10 @@ package com.FinZen.models.Entities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -40,6 +44,11 @@ public class Inversion {
 
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
+    
+    @OneToMany(mappedBy = "inversion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Presupuesto> presupuestos = new ArrayList<>();
+    
 
     public enum TipoInversion {
         ACCIONES, FONDOS, CRYPTO

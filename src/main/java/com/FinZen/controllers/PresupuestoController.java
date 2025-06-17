@@ -1,18 +1,30 @@
 package com.FinZen.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FinZen.models.DTOS.PresupuestoDto;
+import com.FinZen.models.Entities.Presupuesto;
+import com.FinZen.models.Entities.Usuarios;
+import com.FinZen.repository.PresupuestoRepository;
+import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.PresupuestoServices;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -21,6 +33,13 @@ public class PresupuestoController {
     
     @Autowired
     private PresupuestoServices presupuestoServices;
+    @Autowired
+    private PresupuestoRepository presupuestoRepository;
+
+    private String token;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
 // para crear el presupuesto
     @PostMapping
@@ -35,7 +54,7 @@ public class PresupuestoController {
     }
 
 // para trear el presupuesto por id de la cuenta
-    @GetMapping("{idCuenta}")
+    @GetMapping("/{idCuenta}")
     public ResponseEntity<?> getByPresupuesto(@PathVariable Long idCuenta) {
         try {
             return ResponseEntity.ok(presupuestoServices.getPresupuestos(idCuenta));
@@ -44,6 +63,22 @@ public class PresupuestoController {
         }
     }
 
+    @GetMapping("/getUser")
+    public ResponseEntity<?> getPresupuestoUser(HttpServletRequest request) {
+        token = jwtUtils.getJwtFromRequest(request);
+
+    if (token != null && jwtUtils.validateJwtToken(token)) {
+        Long userId = jwtUtils.getUserIdFromJwtToken(token);
+
+        // Buscar al usuario en la base de datos
+        List<Presupuesto> presupuestos = presupuestoRepository.findByUsuarioId(userId);
+                
+        return ResponseEntity.ok(presupuestos);
+    }
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
+    
 // para acutualizar el presupuesto por id
     @PutMapping("{id}")
     public ResponseEntity<?> updatePresupuesto(@PathVariable Long id, @RequestBody PresupuestoDto presupuestoDto) {
