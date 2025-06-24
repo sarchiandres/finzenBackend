@@ -44,11 +44,14 @@ public class Inversion {
 
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
-    
+
     @OneToMany(mappedBy = "inversion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Presupuesto> presupuestos = new ArrayList<>();
-    
+
+    @OneToMany(mappedBy = "inversion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Ingresos> ingresos = new ArrayList<>();
 
     public enum TipoInversion {
         ACCIONES, FONDOS, CRYPTO

@@ -1,12 +1,21 @@
 package com.FinZen.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FinZen.models.DTOS.IngresosDto;
+import com.FinZen.models.Entities.Ingresos;
+import com.FinZen.models.Entities.Usuarios;
+import com.FinZen.repository.IngresosRepository;
+import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.IngresoServices;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +29,11 @@ public class ingresoController {
 
     @Autowired
     private IngresoServices ingresoServices;
+        @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private IngresosRepository ingresosRepository;
 
     // para crear el ingreso
     @PostMapping
@@ -35,12 +49,18 @@ public class ingresoController {
 // se trae los ingresos por presupuesto 
 
     @GetMapping("/{idPresupuesto}")
-    public ResponseEntity<?> getIngresosByPresupuestoId(@PathVariable Long idPresupuesto) {
-        try {
-            return ResponseEntity.ok(ingresoServices.getAllIngresos(idPresupuesto));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al obtener los ingresos: " + e.getMessage());
-        }
+    public ResponseEntity<?> getIngresosUserId(HttpServletRequest request) {
+      String token = jwtUtils.getJwtFromRequest(request);
+
+    if (token != null && jwtUtils.validateJwtToken(token)) {
+        Long userId = jwtUtils.getUserIdFromJwtToken(token);
+
+        // Buscar al usuario en la base de datos
+        List<Ingresos> ingresos = ingresosRepository.findByUsuarioId(userId);
+                
+        return ResponseEntity.ok(ingresos);
+    }
+    return ResponseEntity.status(401).body("Token inválido o no proporcionado.");
     }
     
     // para editar o actualizar el ingreso 

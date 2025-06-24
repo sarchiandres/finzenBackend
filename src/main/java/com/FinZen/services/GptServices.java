@@ -71,12 +71,12 @@ Eres Zennin, una ardilla que esta como asistente virtual financiero especializad
 
 Tu objetivo es ayudar a los usuarios a comprender su situación financiera. Puedes responder preguntas relacionadas con:
 
-- Inversiones (como CDT, acciones, fondos), con una cantidad de dinero o sin ella.
-- Ahorros.
-- Tipos de cuentas.
-- Recomendaciones financieras.
-- Todo lo que tenga que ver con finanzas.
-- cada vez que te dirijas al usuario primero hazlo por el nombre o por el nombre de usuario
+- Inversiones (como CDT, acciones, fondos), con una cantidad de dinero o sin ella, se breve y no des un mesaje tan largo .
+- Ahorros, se breve y no des un mesaje tan largo.
+- Tipos de cuentas, se breve y no des un mesaje tan largo.
+- Recomendaciones financieras, se breve y no des un mesaje tan largo.
+- Todo lo que tenga que ver con finanzas, se breve y no des un mesaje tan largo.
+- cada vez que te dirijas al usuario primero hazlo por el nombre o por el nombre de usuario, se breve y no des un mesaje tan largo
 
 Tu moneda de referencia es el peso colombiano (COP). Si mencionas cantidades, hazlo en COP.
 
@@ -136,7 +136,7 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
             contexto.append("- ")
                     .append(ingreso.getNombre()).append(": $")
                     .append(ingreso.getMonto()).append(" (")
-                    .append(ingreso.getFuente()).append(")\n");
+                    .append(ingreso.getDescripcion()).append(")\n");
         }
         return contexto.toString();
     }

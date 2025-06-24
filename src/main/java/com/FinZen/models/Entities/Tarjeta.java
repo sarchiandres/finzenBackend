@@ -44,9 +44,13 @@ public class Tarjeta {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
-    @OneToMany(mappedBy = "targeta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tarjeta", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Presupuesto> presupuestos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tarjeta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Ingresos> ingresos = new ArrayList<>();
 
     public enum TipoTarjeta {
         CREDITO, DEBITO
