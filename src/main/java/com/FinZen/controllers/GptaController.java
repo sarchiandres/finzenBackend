@@ -2,7 +2,7 @@ package com.FinZen.controllers;
 
 import com.FinZen.models.DTOS.PrompResponseDto;
 import com.FinZen.models.DTOS.PromptRequestDto;
-import com.FinZen.models.Entities.Usuarios;
+
 import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.GptServices;
 

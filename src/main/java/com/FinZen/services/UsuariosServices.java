@@ -48,13 +48,11 @@ public class UsuariosServices {
     
 
         String tipoUsuarioNombre = usuarioDto.getRole() != null ? usuarioDto.getRole().toUpperCase() : "USUARIO";
-         if (!Arrays.asList("USUARIO", "ADMINITRADOR").contains(tipoUsuarioNombre)) {
-            throw new FinZenException("Rol inválido: " + tipoUsuarioNombre + ". Debe ser 'USUARIO' o 'ADMINITRADOR'");
+         if (!Arrays.asList("USUARIO", "ADMINISTRADOR").contains(tipoUsuarioNombre)) {
+            throw new FinZenException("Role inválido: " + tipoUsuarioNombre + ". Debe ser USUARIO o ADMINISTRADOR");
         }
-        
 
 
-        
         String urlImagen = null;
 
   

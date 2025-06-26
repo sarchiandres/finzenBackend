@@ -38,7 +38,7 @@ import com.FinZen.repository.UsuariosRepository;
 import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.EmailService;
 import com.FinZen.services.UsuariosServices;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -111,10 +111,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error interno del servidor: " + e.getMessage()));
         }
-
-
-        
-         
+            
     }
 
 

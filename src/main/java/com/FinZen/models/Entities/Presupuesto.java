@@ -1,5 +1,5 @@
-package com.FinZen.models.Entities;
 
+package com.FinZen.models.Entities;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,27 +36,29 @@ public class Presupuesto {
     @Column(name = "monto_asignado", columnDefinition = "DECIMAL(15,2) NOT NULL")
     private BigDecimal montoAsignado;
 
-
     @ManyToOne
     @JoinColumn(name = "id_cuenta", referencedColumnName = "id_cuenta")
     @JsonIgnore
     private Cuenta cuenta;
 
     @ManyToOne
+    @JoinColumn(name = "id_tarjeta", referencedColumnName = "id_tarjeta")
+    @JsonIgnore
+    private Tarjeta tarjeta;
+
+    @ManyToOne
+    @JoinColumn(name = "id_inversion", referencedColumnName = "id_inversion")
+    @JsonIgnore
+    private Inversion inversion;
+
+    @ManyToOne
     @JoinColumn(name = "id_categoriapresupuesto", nullable = false)
     @JsonIgnore
     private CategoriaPresupuesto categoria;
 
-
-    @OneToMany(mappedBy = "presupuesto" ,cascade = CascadeType.ALL, orphanRemoval = true,
-        fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "presupuesto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Gastos> gastos = new ArrayList<>();
 
-
-    @OneToMany(mappedBy = "presupuesto" ,cascade = CascadeType.ALL, orphanRemoval = true,
-            fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Ingresos> ingresos = new ArrayList<>();
-    
+   
 }

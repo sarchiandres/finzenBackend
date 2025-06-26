@@ -8,10 +8,12 @@ import lombok.Data;
 public class IngresosDto {
     
     private String nombre;
-    private Long idPresupuesto;
+    private Long idCuenta;
+    private Long idTarjeta;
+    private Long idInversion;
     private BigDecimal monto;
     private String fecha;
-    private String fuente;
+    private String descripcion;
 
 
 }

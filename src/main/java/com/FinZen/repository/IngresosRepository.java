@@ -10,10 +10,9 @@ import com.FinZen.models.Entities.Ingresos;
 
 public interface IngresosRepository  extends JpaRepository<Ingresos, Long> {
 
-    @Query("SELECT i FROM Ingresos i WHERE i.presupuesto.cuenta.usuarios.idUsuario= :userId")
+    @Query("SELECT i FROM Ingresos i WHERE i.cuenta.usuarios.idUsuario= :userId")
     List<Ingresos> findByUsuarioId(@Param("userId") Long userId);
     
 
-    List<Ingresos> findByPresupuestoIdPresupuesto(Long idPresupuesto);
     
 }
