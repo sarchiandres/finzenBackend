@@ -1,11 +1,13 @@
 package com.FinZen.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.FinZen.models.DTOS.GastosDto;
+import com.FinZen.models.DTOS.GastosResponseDto;
 import com.FinZen.models.Entities.CategoriaGasto;
 import com.FinZen.models.Entities.Gastos;
 import com.FinZen.models.Entities.Presupuesto;
@@ -19,17 +21,13 @@ public class GastosServices {
     @Autowired
     private GastosRepository gastosRepository;
     @Autowired
-    private PresupuestoRepository PresupuestoRepository;
+    private PresupuestoRepository presupuestoRepository;
     @Autowired
     private CategoriaGastoRepository categoriaGastoRepository;
 
-
-    
-
     public Gastos saveGasto (GastosDto gastosDto){
-        Presupuesto presupuesto = PresupuestoRepository.findById(gastosDto.getIdPresupuesto())
+        Presupuesto presupuesto = presupuestoRepository.findById(gastosDto.getIdPresupuesto())
                 .orElseThrow(() -> new RuntimeException("No se encontró el presupuesto con ID: " + gastosDto.getIdPresupuesto()));
-
 
         CategoriaGasto categoriaGasto = categoriaGastoRepository.findById(gastosDto.getIdCategoria())
                 .orElseThrow(() -> new RuntimeException("No se encontró la categoría de gasto con ID: " + gastosDto.getIdCategoria()));
@@ -45,22 +43,33 @@ public class GastosServices {
         return gastosRepository.save(gasto);
     }
 
+    public List<GastosResponseDto> getGastosForUser(Long userId) {
+        List<Gastos> gastosEntities = gastosRepository.getGastosByUsuarioId(userId);
 
-
-
-
+        return gastosEntities.stream()
+            .map(gasto -> new GastosResponseDto(
+                gasto.getIdGasto(),
+                gasto.getNombre(),
+                gasto.getMonto(),
+                gasto.getDescripcion(),
+                gasto.getFecha(),
+                gasto.getCategoria() != null ? gasto.getCategoria().getIdCategoria() : null,
+                gasto.getCategoria() != null ? gasto.getCategoria().getNombre() : "Sin Categoría",
+                gasto.getPresupuesto() != null ? gasto.getPresupuesto().getIdPresupuesto() : null,
+                gasto.getPresupuesto() != null ? gasto.getPresupuesto().getNombre() : null
+            ))
+            .collect(Collectors.toList());
+    }
 
     public Gastos updateGasto (Long idGasto, GastosDto gastosDto){
         Gastos gasto = gastosRepository.findById(idGasto)
                 .orElseThrow(() -> new RuntimeException("No se encontró el gasto con ID: " + idGasto));
 
-        Presupuesto presupuesto = PresupuestoRepository.findById(gastosDto.getIdPresupuesto())
+        Presupuesto presupuesto = presupuestoRepository.findById(gastosDto.getIdPresupuesto())
                 .orElseThrow(() -> new RuntimeException("No se encontró el presupuesto con ID: " + gastosDto.getIdPresupuesto()));
-
 
         CategoriaGasto categoriaGasto = categoriaGastoRepository.findById(gastosDto.getIdCategoria())
                 .orElseThrow(() -> new RuntimeException("No se encontró la categoría de gasto con ID: " + gastosDto.getIdCategoria()));
-
 
         gasto.setNombre(gastosDto.getNombre());
         gasto.setMonto(gastosDto.getMonto());
@@ -71,13 +80,10 @@ public class GastosServices {
         return gastosRepository.save(gasto);
     }
 
-
-
-
-
-
-
     public String deleteGasto (Long idGasto){
+        if (!gastosRepository.existsById(idGasto)) {
+            throw new RuntimeException("El gasto con ID: " + idGasto + " no existe.");
+        }
         try {
             gastosRepository.deleteById(idGasto);
             return "Gasto eliminado con éxito";
@@ -86,12 +92,7 @@ public class GastosServices {
         }
     }
 
-
-
-
     public List<Gastos> getGastosByPresupuestoId(Long idPresupuesto) {
         return gastosRepository.findByPresupuestoIdPresupuesto(idPresupuesto);
     }
-
-
 }

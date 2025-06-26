@@ -9,5 +9,4 @@ public class SoporteDto {
     private String pregunta;
     private String respuesta;
     private Long idUsuario;
-    
 }

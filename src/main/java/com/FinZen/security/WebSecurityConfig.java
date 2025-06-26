@@ -67,6 +67,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        // Split allowedOrigins string by comma to handle multiple origins
         configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
@@ -82,27 +83,38 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/finzen/auth/**","/finzen/gpt/noUser").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/finzen/categoria-presupuesto/**", "/finzen/analytics/**", "/actuator/**").hasRole("ADMINISTRADOR")
-                .requestMatchers("/finzen/presupuesto/**",
-                                 "/finzen/informe/**",
-                                 "/finzen/ingresos/**",
-                                 "/finzen/metas/**",
-                                 "/finzen/deuda/**",
-                                 "/finzen/gasto/**",
-                                 "/finzen/soporte/**",
-                                 "/finzen/usuarios/**",
-                                 "/finzen/gpt/user").authenticated()
-                .anyRequest().authenticated()
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless JWT APIs
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Use stateless sessions for JWT
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints (no authentication required)
+                        .requestMatchers("/finzen/auth/**", "/finzen/gpt/noUser").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+                        // Admin-specific endpoints (requires ADMINISTRADOR role)
+                        .requestMatchers("/finzen/categoria-presupuesto/**", "/finzen/analytics/**", "/actuator/**").hasRole("ADMINISTRADOR")
+
+                        // Endpoints that require authentication for any authenticated user
+                        // This explicitly includes /finzen/presupuesto/**
+                        .requestMatchers("/finzen/user/finances",
+                                "/finzen/presupuesto/**",
+                                "/finzen/informe/**",
+                                "/finzen/ingresos/**",
+                                "/finzen/metas/**",
+                                "/finzen/deuda/**",
+                                "/finzen/gasto/**",
+                                "/finzen/soporte/**",
+                                "/finzen/usuarios/**",
+                                "/finzen/tarjetas/**",
+                                "/finzen/inversiones/**",
+                                "/finzen/gpt/user").authenticated()
+
+                        // Any other request not matched above also requires authentication
+                        .anyRequest().authenticated()
+                )
+                .authenticationProvider(authenticationProvider()) // Set your custom authentication provider
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class); // Add your JWT filter before the standard username/password filter
 
         return http.build();
     }

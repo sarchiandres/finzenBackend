@@ -34,13 +34,23 @@ public class Ingresos {
     @Column(name = "fecha", columnDefinition = "DATE NOT NULL")
     private String fecha;
 
-    @Column(name = "fuente", length = 100)
-    private String fuente;
+    @Column(name = "descripcion", length = 100)
+    private String descripcion;
 
 
     @ManyToOne
-    @JoinColumn(name="id_presupuesto",nullable = false,referencedColumnName = "id_presupuesto")
+    @JoinColumn(name="id_cuenta",nullable = false,referencedColumnName = "id_cuenta")
     @JsonIgnore
-    private Presupuesto presupuesto;
-    
+    private Cuenta cuenta ;
+
+    @ManyToOne
+    @JoinColumn(name="id_tarjeta",nullable = false,referencedColumnName = "id_tarjeta")
+    @JsonIgnore
+    private Tarjeta tarjeta ;
+
+
+     @ManyToOne
+    @JoinColumn(name="id_inversion",nullable = false,referencedColumnName = "id_inversion")
+    @JsonIgnore
+    private Inversion inversion ;
 }

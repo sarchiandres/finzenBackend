@@ -78,6 +78,7 @@ public class EmailService {
      * @param token  Token de restablecimiento
      */
     public void sendPasswordResetToken(String to, String nombre, String token) {
+
         try {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -110,4 +111,54 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    public void sendRegister (String to, String nombre){
+        try {
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject("FinZen - Bienvenido a FinZen");
+
+            
+
+            String htmlContent = "<html>" +
+                    "<head>" +
+                    "  <style>" +
+                    "    body { font-family: Arial, sans-serif; line-height: 1.6; background-color: #f4f4f4; padding: 20px; }" +
+                    "    .container { background-color: #fff; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; }" +
+                    "    .header { background-color:rgb(112, 112, 112); color: white; padding: 15px; text-align: center; border-radius: 10px 10px 0 0; }" +
+                    "    .content { text-align: center; padding: 20px; }" +
+                    "    .footer { font-size: 12px; color: gray; text-align: center; margin-top: 20px; }" +
+                    "    img { width: 150px; margin-bottom: 20px; }" +
+                    "  </style>" +
+                    "</head>" +
+                    "<body>" +
+                    "  <div class='container'>" +
+                    "    <div class='header'>" +
+                    "      <h2>¡Hola, " + nombre + "!</h2>" +
+                    "    </div>" +
+                    "    <div class='content'>" + 
+                    "      <p>Gracias por elegirnos bienvenido a</strong> FinZen.</p>" +
+                    "      <p><strong>Fecha y hora de registro:</strong> " + LocalDateTime.now() + "</p>" +
+                    "      <p></p>" +
+                    "    </div>" +
+                    "    <div class='footer'>" +
+                    "      <p>FinZen - Gestiona tus finanzas con facilidad.</p>" +
+                    "    </div>" +
+                    "  </div>" +
+                    "</body>" +
+                    "</html>";
+
+            helper.setText(htmlContent, true); // true = HTML
+
+            emailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
 }
+

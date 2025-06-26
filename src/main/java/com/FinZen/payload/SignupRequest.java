@@ -1,5 +1,7 @@
 package com.FinZen.payload;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Data;
 
 @Data
@@ -14,6 +16,7 @@ public class SignupRequest {
     private Boolean metaActual;
     private String nombreUsuario;
     private String tipoPersona;
+    private MultipartFile urlImg;
     private String role;
     
 }

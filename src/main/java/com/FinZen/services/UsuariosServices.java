@@ -2,7 +2,9 @@ package com.FinZen.services;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import com.FinZen.models.DTOS.UsuarioDto;
 import com.FinZen.models.Entities.TipoUsuario;
 import com.FinZen.models.Entities.Usuarios;
 import com.FinZen.payload.FinZenException;
+import com.FinZen.payload.SignupRequest;
 import com.FinZen.repository.TipoUsuarioRepository;
 import com.FinZen.repository.UsuariosRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,7 +32,7 @@ public class UsuariosServices {
 
     // method to add user
 
-    public Usuarios  saveUsuario (UsuarioDto usuarioDto) {
+    public Map<String, Object>  saveUsuario (SignupRequest usuarioDto) {
 
         if (usuariosRepository.findByNombreUsuario(usuarioDto.getNombreUsuario()).isPresent()) {
             throw new RuntimeException("El nombre de usuario " + usuarioDto.getNombreUsuario() + " ya existe");
@@ -44,14 +47,12 @@ public class UsuariosServices {
         }
     
 
-        String tipoUsuarioNombre = usuarioDto.getTipoUsuario() != null ? usuarioDto.getTipoUsuario().toUpperCase() : "USUARIO";
-         if (!Arrays.asList("USUARIO", "ADMINITRADOR").contains(tipoUsuarioNombre)) {
-            throw new FinZenException("Rol inválido: " + tipoUsuarioNombre + ". Debe ser 'USUARIO' o 'ADMINITRADOR'");
+        String tipoUsuarioNombre = usuarioDto.getRole() != null ? usuarioDto.getRole().toUpperCase() : "USUARIO";
+         if (!Arrays.asList("USUARIO", "ADMINISTRADOR").contains(tipoUsuarioNombre)) {
+            throw new FinZenException("Role inválido: " + tipoUsuarioNombre + ". Debe ser USUARIO o ADMINISTRADOR");
         }
-        
 
 
-        
         String urlImagen = null;
 
   
@@ -83,8 +84,19 @@ public class UsuariosServices {
         TipoUsuario tipoUsuario = tipoUsuarioRepository.findByNombre(tipoUsuarioNombre)
                 .orElseThrow(() -> new FinZenException("El tipo de usuario '" + tipoUsuarioNombre + "' no existe"));
         usuario.setTipoUsuario(tipoUsuario);
+
+        Usuarios savedUsuario = usuariosRepository.save(usuario);
         
-        return usuariosRepository.save(usuario);
+         Map<String, Object> responseData = new HashMap<>();
+        responseData.put("id", savedUsuario.getIdUsuario());
+        responseData.put("nombre", savedUsuario.getNombre());
+        responseData.put("correo", savedUsuario.getCorreo());
+        responseData.put("nombreUsuario", savedUsuario.getNombreUsuario());
+        responseData.put("tipoUsuarioId", savedUsuario.getTipoUsuario().getIdTipoUsuario());
+        responseData.put("tipoUsuarioNombre", savedUsuario.getTipoUsuario().getNombre());
+
+       
+        return responseData;
     }
 
 

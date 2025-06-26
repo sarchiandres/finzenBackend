@@ -25,5 +25,4 @@ public class FinZenApplication {
 	
 		app.run(args);
 	}
-
 }
