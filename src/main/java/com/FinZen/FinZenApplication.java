@@ -11,7 +11,8 @@ public class FinZenApplication {
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.load();
 
-		// Poner variables en System properties ANTES de SpringApplication.run()
+		// Poner variables en System properties ANTES
+		// de SpringApplication.run()
 		System.setProperty("GPT", dotenv.get("GPT"));
 		System.setProperty("AWS_ACC_KEY", dotenv.get("AWS_ACC_KEY"));
 		System.setProperty("AWS_SEC_KEY", dotenv.get("AWS_SEC_KEY"));

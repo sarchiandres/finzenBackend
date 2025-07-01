@@ -3,7 +3,6 @@ package com.FinZen.models.Entities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -20,36 +19,40 @@ import lombok.Data;
 @Table(name = "META")
 @Data
 public class Meta {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idMeta;
 
-    @Column(name = "titulo" ,length = 150)
+    @Column(name = "titulo", length = 150)
     private String titulo;
 
-    @Column(name= "descripcion")
+    @Column(name = "descripcion")
     private String descripcion;
 
-    @Column(name="fecha_inicio")
+    @Column(name = "fecha_inicio")
     private LocalDate fechaInicio;
 
-    @Column(name="fecha_limite")
+    @Column(name = "fecha_limite", nullable = true)
     private LocalDate fechaLimite;
 
-    @Column(name="en_progreso")
+    @Column(name = "en_progreso")
     private Boolean enProgreso;
 
-    @Column(name="valor")
+    @Column(name = "valor")
     private BigDecimal valor;
 
-    @Column(name = "estado",columnDefinition = "ENUM('CREADO', 'INICIADO', 'TERMINADO')")
+    @Column(name = "monto_ahorrado")
+    private BigDecimal montoAhorrado;
+
+    @Column(name = "estado", columnDefinition = "ENUM('creado', 'iniciado', 'terminado')")
     private String estado;
 
+    @Column(name = "icon", length = 10)
+    private String icon;
+
     @ManyToOne
-    @JoinColumn(name="id_cuenta")
+    @JoinColumn(name = "id_cuenta")
     @JsonIgnore
     private Cuenta cuenta;
-
-  
 }

@@ -21,7 +21,7 @@ import lombok.Data;
 @Table(name = "USUARIOS")
 @Data
 public class Usuarios {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
@@ -51,7 +51,7 @@ public class Usuarios {
     @Column(name = "nombre_usuario", length = 50)
     private String nombreUsuario;
 
- 
+
     @Column(name = "tipo_documento", columnDefinition = "ENUM('CEDULA','PASAPORTE', 'TARJETA_DE_IDENTIDAD', 'CEDULA_EXTRANJERA') DEFAULT 'cedula'")
     private String tipoDocumento;
 
@@ -74,7 +74,7 @@ public class Usuarios {
     @JsonIgnore
     private List<PeriodoMesual> periodos = new ArrayList<>();
 
-   @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Soporte> soportes = new ArrayList<>();
 }
