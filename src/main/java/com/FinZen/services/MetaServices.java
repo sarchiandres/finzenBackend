@@ -22,6 +22,12 @@ public class MetaServices {
     @Autowired
     private CuentaRepository cuentaRepository;
 
+
+    public List<Meta> obtenerMetasPorUsuario(Long idUsuario) {
+        return metaRepository.findMetasByUsuarioId(idUsuario);
+    }
+
+
     public Meta createMeta(MetaDto metaDto) {
         Cuenta cuenta = cuentaRepository.findById(metaDto.getIdCuenta())
                 .orElseThrow(() -> new IllegalArgumentException("Cuenta no encontrada"));

@@ -37,7 +37,7 @@ public class Cuenta {
     @Column(name = "monto_libre", columnDefinition = "DECIMAL(15,2) NOT NULL")
     private BigDecimal montoLibre;
 
-    @Column(name="monto_ocupado")
+    @Column(name = "monto_ocupado")
     private BigDecimal montoOcupado;
 
     @ManyToOne

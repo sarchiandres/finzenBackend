@@ -12,15 +12,42 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/finzen/meta")
 @CrossOrigin(origins = "*")
 public class MetaController {
 
+
     @Autowired
     private MetaServices metaServices;
+
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<List<MetaDto>> obtenerMetasPorUsuario(@PathVariable Long idUsuario) {
+        List<Meta> metas = metaServices.obtenerMetasPorUsuario(idUsuario);
+
+        List<MetaDto> metasDto = metas.stream().map(meta -> {
+            MetaDto dto = new MetaDto();
+            dto.setIdMeta(meta.getIdMeta());
+            dto.setTitulo(meta.getTitulo());
+            dto.setDescripcion(meta.getDescripcion());
+            dto.setFechaInicio(meta.getFechaInicio());
+            dto.setFechaLimite(meta.getFechaLimite());
+            dto.setEnProgreso(meta.getEnProgreso());
+            dto.setEstado(meta.getEstado());
+            dto.setValor(meta.getValor());
+            dto.setMontoAhorrado(meta.getMontoAhorrado());
+            dto.setIcon(meta.getIcon());
+            dto.setIdCuenta(meta.getCuenta().getIdCuenta()); // accede a la relación
+            return dto;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(metasDto);
+    }
+
 
     @PostMapping
     public ResponseEntity<?> crearMeta(@Valid @RequestBody MetaDto metaDto, BindingResult result) {

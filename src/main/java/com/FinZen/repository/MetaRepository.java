@@ -12,6 +12,9 @@ import com.FinZen.models.Entities.Meta;
 
 public  interface MetaRepository  extends JpaRepository<Meta, Long> {
 
+    @Query("SELECT m FROM Meta m JOIN m.cuenta c WHERE c.usuarios.idUsuario = :idUsuario")
+    List<Meta> findMetasByUsuarioId(@Param("idUsuario") Long idUsuario);
+
     Optional<Meta> findByTitulo(String nombre);
     List<Meta> findByCuentaIdCuenta(Long idCuenta);
 
