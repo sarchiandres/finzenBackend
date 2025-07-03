@@ -1,5 +1,3 @@
-package com.FinZen.models.DTOS;
-
 import java.math.BigDecimal;
 
 public class Estadisticas {
