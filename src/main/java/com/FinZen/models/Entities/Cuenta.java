@@ -37,7 +37,7 @@ public class Cuenta {
     @Column(name = "monto_libre", columnDefinition = "DECIMAL(15,2) NOT NULL")
     private BigDecimal montoLibre;
 
-    @Column(name="monto_ocupado")
+    @Column(name = "monto_ocupado")
     private BigDecimal montoOcupado;
 
     @ManyToOne
@@ -51,13 +51,5 @@ public class Cuenta {
 
     @OneToMany(mappedBy = "cuenta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Meta> metas = new ArrayList<>();
-
-    @OneToMany(mappedBy = "cuenta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
     private List<Deuda> deudas = new ArrayList<>();
-
-    @OneToMany(mappedBy = "cuenta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Ingresos> ingresos = new ArrayList<>();
 }
