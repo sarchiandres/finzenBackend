@@ -44,16 +44,6 @@ public class UsuariosServices {
             throw new RuntimeException("El usuario con este correo ya existe");
         }
 
-<<<<<<< HEAD
-        if (signupRequest.getIngresoMensual() == null || signupRequest.getIngresoMensual() <= 0) {
-            throw new FinZenException("El ingreso mensual debe ser mayor que 0");
-=======
-        String tipoUsuarioNombre = usuarioDto.getRole() != null ? usuarioDto.getRole().toUpperCase() : "USUARIO";
-         if (!Arrays.asList("USUARIO", "ADMINISTRADOR").contains(tipoUsuarioNombre)) {
-            throw new FinZenException("Role inválido: " + tipoUsuarioNombre + ". Debe ser USUARIO o ADMINISTRADOR");
->>>>>>> main
-        }
-
         if (signupRequest.getMetaActual() == null || signupRequest.getMetaActual() <= 0) {
             throw new FinZenException("La meta actual debe ser mayor que 0");
         }
