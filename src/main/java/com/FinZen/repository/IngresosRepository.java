@@ -13,6 +13,7 @@ public interface IngresosRepository  extends JpaRepository<Ingresos, Long> {
     @Query("SELECT i FROM Ingresos i WHERE i.cuenta.usuarios.idUsuario= :userId")
     List<Ingresos> findByUsuarioId(@Param("userId") Long userId);
     
-
+    @Query("SELECT SUM(i.monto) FROM Ingresos i WHERE i.cuenta.usuarios.idUsuario = :userId")
+    Double sumIngresosByUserId(@Param("userId")long userId);
     
 }

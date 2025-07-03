@@ -3,9 +3,11 @@ package com.FinZen.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.FinZen.models.DTOS.CambioContrasenaDto;
 import com.FinZen.models.DTOS.UsuarioDto;
 import com.FinZen.models.Entities.Usuarios;
 import com.FinZen.payload.SignupRequest;
@@ -87,6 +89,30 @@ public ResponseEntity<?> getPerfil(HttpServletRequest request) {
             return ResponseEntity.ok(usuario); 
         }
     
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
+
+
+
+    @PutMapping("/cambiar-contrasena")
+    public ResponseEntity<String> cambiarContrasena(@RequestBody CambioContrasenaDto cambioContrasenaDto, HttpServletRequest request) {
+        token = jwtUtils.getJwtFromRequest(request);
+
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            boolean cambiado = usuariosServices.cambiarContrasena(
+                userId,
+                cambioContrasenaDto.getCurrentPassword(),
+                cambioContrasenaDto.getNewPassword()
+            );
+            if (cambiado) {
+                return ResponseEntity.ok("Contraseña cambiada exitosamente.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Contraseña actual incorrecta.");
+            }
+        }
+
+        // Manejar el caso en el que el token sea inválido o no esté presente
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 }
