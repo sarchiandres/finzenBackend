@@ -19,7 +19,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "PERIODO_MESUAL")
+@Table(name = "periodo_mensual")
 public class PeriodoMesual {
 
     @Id

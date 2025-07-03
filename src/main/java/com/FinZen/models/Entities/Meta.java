@@ -17,7 +17,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "META")
+@Table(name = "meta")
 @Data
 public class Meta {
     

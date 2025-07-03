@@ -3,7 +3,7 @@ package com.FinZen.models.Entities;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "INFORME")
+@Table(name = "informe")
 public class Informe {
 
     @Id

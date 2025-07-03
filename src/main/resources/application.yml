@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/FinZen
+    url: jdbc:mysql://switchback.proxy.rlwy.net:47889/railway
     username: root
-    password: 1234
+    password: mAEKuxiEgJXwBiVRRiDNZwoPyAOrYqFJ
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       connection-timeout: 30000
@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
