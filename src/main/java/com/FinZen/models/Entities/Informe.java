@@ -1,9 +1,13 @@
 package com.FinZen.models.Entities;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "INFORME")
+@Data
 public class Informe {
 
     @Id
@@ -18,6 +22,12 @@ public class Informe {
     @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
 
+    @Column(name = "tipo_informe") 
+    private String tipoInforme;
+
+     @Column(name = "fecha_generacion") 
+    private LocalDate fechaGeneracion;
+
     // Constructores
     public Informe() {}
 
@@ -26,37 +36,5 @@ public class Informe {
         this.descripcion = descripcion;
     }
 
-    // Getters y Setters
-    public Long getIdInforme() {
-        return idInforme;
-    }
-
-    public void setIdInforme(Long idInforme) {
-        this.idInforme = idInforme;
-    }
-
-    public Usuarios getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuarios usuario) {
-        this.usuario = usuario;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    @Override
-    public String toString() {
-        return "Informe{" +
-                "idInforme=" + idInforme +
-                ", usuario=" + (usuario != null ? usuario.getIdUsuario() : null) +
-                ", descripcion='" + descripcion + '\'' +
-                '}';
-    }
+   
 }

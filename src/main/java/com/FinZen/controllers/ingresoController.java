@@ -3,13 +3,13 @@ package com.FinZen.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.FinZen.models.DTOS.IngresosDto;
 import com.FinZen.models.Entities.Ingresos;
-import com.FinZen.models.Entities.Usuarios;
 import com.FinZen.repository.IngresosRepository;
 import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.IngresoServices;
@@ -29,13 +29,12 @@ public class ingresoController {
 
     @Autowired
     private IngresoServices ingresoServices;
-        @Autowired
+    @Autowired
     private JwtUtils jwtUtils;
 
     @Autowired
     private IngresosRepository ingresosRepository;
 
-    // para crear el ingreso
     @PostMapping
     public ResponseEntity<?> CreateIngreso(@RequestBody IngresosDto inigreso) {
        try {
@@ -46,16 +45,13 @@ public class ingresoController {
         }
     }
 
-// se trae los ingresos por presupuesto 
-
-    @GetMapping("/{idPresupuesto}")
+    @GetMapping
     public ResponseEntity<?> getIngresosUserId(HttpServletRequest request) {
       String token = jwtUtils.getJwtFromRequest(request);
 
     if (token != null && jwtUtils.validateJwtToken(token)) {
         Long userId = jwtUtils.getUserIdFromJwtToken(token);
 
-        // Buscar al usuario en la base de datos
         List<Ingresos> ingresos = ingresosRepository.findByUsuarioId(userId);
                 
         return ResponseEntity.ok(ingresos);
@@ -63,10 +59,7 @@ public class ingresoController {
     return ResponseEntity.status(401).body("Token inválido o no proporcionado.");
     }
     
-    // para editar o actualizar el ingreso 
-
-
-     @PutMapping("/{idIngreso}") // id de el ingreso a actualizar 
+    @PutMapping("/{idIngreso}")
     public String putMethodName(@PathVariable Long idIngreso , @RequestBody IngresosDto ingreso) {
         try {
             ingresoServices.updateIngreso(idIngreso, ingreso);
@@ -76,7 +69,29 @@ public class ingresoController {
         }
     }
 
-    // para eliminar el ingreso
+
+      @GetMapping("/total")
+    public ResponseEntity<?> getTotalIngresos(HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se pudo obtener el ID de usuario del token.");
+            }
+
+            Double totalIngresos = ingresosRepository.sumIngresosByUserId(userId);
+
+            // Manejar el caso en que no haya ingresos (sumIngresosByUserId devolvería null)
+            if (totalIngresos == null) {
+                totalIngresos = 0.0; // Si no hay ingresos, la suma es 0
+            }
+            
+            return ResponseEntity.ok(totalIngresos); // Devuelve solo el valor Double
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
 
     @DeleteMapping("/{idIngreso}")
     public String deleteIngreso(@PathVariable Long idIngreso) {

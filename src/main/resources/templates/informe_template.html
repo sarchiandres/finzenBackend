@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Informe Financiero FinZen</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 30px;
+            color: #333;
+            line-height: 1.6;
+            font-size: 11pt; /* Tamaño de fuente base para todo el documento */
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #eee;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            background: #fff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #0056b3;
+        }
+        .main-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #0056b3;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .subtitle {
+            font-size: 0.9em;
+            color: #777;
+        }
+        .generation-date {
+            text-align: center;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        /* --- Estilos para el contenido generado por el SP (HTML crudo) --- */
+        .section-block {
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #fcfcfc; /* Un fondo ligeramente diferente para las secciones principales */
+        }
+        .section-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            color: #0056b3;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .data-list { /* Usado para listas generales de datos, como información de usuario */
+            list-style: none; /* Elimina las viñetas por defecto */
+            padding: 0;
+            margin: 0;
+        }
+        .data-list li {
+            margin-bottom: 5px;
+            padding-left: 10px; /* Pequeña sangría para los ítems */
+        }
+        .data-list li strong { /* Para las etiquetas de los ítems de lista (ej. "Nombre:", "Documento:") */
+            display: inline-block;
+            width: 100px; /* Ajusta este ancho para alinear bien las etiquetas */
+            text-align: left;
+            margin-right: 5px;
+            color: #444;
+        }
+
+        .summary-list li strong { /* Si quieres que los campos del resumen financiero sean más anchos */
+            width: 150px; /* Para "Monto Total de Ingresos:", etc. */
+        }
+
+        .income-value {
+            color: green;
+            font-weight: bold;
+        }
+        .expense-value {
+            color: red;
+            font-weight: bold;
+        }
+        .balance-value {
+            color: blue;
+            font-weight: bold;
+        }
+
+        .item-block { /* Para las sub-secciones como Cuentas individuales, Tarjetas, Inversiones */
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background-color: #ffffff; /* Fondo blanco para los bloques de ítems */
+        }
+        .item-block h3 {
+            font-size: 1.2em;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 5px;
+        }
+
+        .sub-item-block { /* Para Presupuestos dentro de Cuentas/Tarjetas/Inversiones */
+            border-left: 4px solid #b3d9ff; /* Un color de borde distintivo para sub-bloques */
+            padding-left: 15px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            background-color: #e6f3ff; /* Un fondo claro para diferenciarlos */
+            border-radius: 3px;
+        }
+        .sub-item-block h4 {
+            font-size: 1.1em;
+            color: #004085;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .transaction-item { /* Para gastos e ingresos individuales */
+            display: flex; /* Usa flexbox para alinear elementos en la misma línea */
+            justify-content: space-between; /* Distribuye el espacio entre los elementos */
+            align-items: center; /* Alinea verticalmente los elementos */
+            padding: 5px 0;
+            border-bottom: 1px dotted #e0e0e0; /* Separador entre transacciones */
+            font-size: 0.9em;
+        }
+        .transaction-item:last-child {
+            border-bottom: none; /* Elimina el borde del último elemento en un grupo */
+        }
+        .transaction-item span {
+            flex: 1; /* Distribuye el espacio equitativamente por defecto */
+            margin-right: 10px; /* Espacio entre los elementos del span */
+        }
+        .transaction-item span:first-child {
+            font-weight: bold;
+            color: #000;
+            flex: 1.5; /* Dale un poco más de espacio al nombre del gasto/ingreso */
+        }
+        .transaction-item span:nth-child(2) { /* Monto */
+            font-weight: bold;
+            text-align: right; /* Alinea el monto a la derecha */
+        }
+        .transaction-item span:last-child {
+            margin-right: 0; /* No hay margen a la derecha para el último span */
+            text-align: right; /* Alinea el último span (descripción/categoría) a la derecha */
+        }
+        /* --- Fin de Estilos para el contenido generado por el SP --- */
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 0.8em;
+            color: #999;
+        }
+        .highlight {
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">INFORME FINANCIERO COMPLETO</h1>
+            <p class="subtitle">Análisis detallado de tus transacciones y patrimonio</p>
+        </div>
+
+        <p class="generation-date">Fecha de Generación: <span th:text="${generationDate}">2025-07-03</span></p>
+
+        <div class="report-content-from-sp">
+            <div th:utext="${rawReportContent}"></div>
+        </div>
+
+        <div class="footer">
+            <p>&#169; <span th:text="${#dates.year(#dates.createNow())}">2025</span> FinZen. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
