@@ -6,7 +6,8 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.5</version>
-        <relativePath/> </parent>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
     <groupId>com.FinZen.ws</groupId>
     <artifactId>FinZen</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -92,6 +93,7 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- JWT Dependencies -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -109,12 +111,14 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+        <!-- Jackson Databind -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.15.2</version>
         </dependency>
 
+        <!-- Spring Boot Starter Mail -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
@@ -134,6 +138,7 @@
             <version>5.5.13.3</version>
         </dependency>
 
+        <!-- ¡DEPENDENCIAS DE OPENHTMLTOPDF MOVIDAS AQUÍ! -->
         <dependency>
             <groupId>com.openhtmltopdf</groupId>
             <artifactId>openhtmltopdf-pdfbox</artifactId>
@@ -155,7 +160,8 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            </dependencies>
+            <!-- Las dependencias de openhtmltopdf YA NO DEBEN ESTAR AQUÍ -->
+        </dependencies>
     </dependencyManagement>
 
     <build>
