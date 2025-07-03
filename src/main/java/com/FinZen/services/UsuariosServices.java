@@ -16,8 +16,6 @@ import com.FinZen.payload.FinZenException;
 import com.FinZen.payload.SignupRequest;
 import com.FinZen.repository.TipoUsuarioRepository;
 import com.FinZen.repository.UsuariosRepository;
-
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
@@ -166,10 +164,6 @@ public class UsuariosServices {
             usuario.setTipoPersona(usuarioDto.getTipoPersona());
 
         }
-        if (usuarioDto.getTipoPersona() != null) {
-            usuario.setTipoPersona(usuarioDto.getTipoPersona());
-        }
-
         String urlImagen = null;
 
   
@@ -214,24 +208,4 @@ public class UsuariosServices {
 
         return "Usuario con ID " + idUsuarioAEliminar + " eliminado correctamente ";
     }  
-
-
-     public boolean cambiarContrasena(Long id , String currentPassword, String newPassword) {
-        //  Encontrar al usuario por su correo (o su nombre de usuario, según tu lógica de autenticación)
-        Usuarios usuario = usuariosRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con correo: " + id));
-
-        // Verificar que la contraseña actual proporcionada sea correcta
-        if (!passwordEncoder.matches(currentPassword, usuario.getContrasena())) {
-            return false; // Contraseña actual incorrecta
-        }
-
-        //  Cifrar la nueva contraseña
-        String hashedNewPassword = passwordEncoder.encode(newPassword);
-
-        // Actualizar la contraseña del usuario
-        usuario.setContrasena(hashedNewPassword);
-        usuariosRepository.save(usuario);
-        return true; // Contraseña cambiada exitosamente
-    }
 }

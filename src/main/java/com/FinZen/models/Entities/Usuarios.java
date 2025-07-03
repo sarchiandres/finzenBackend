@@ -1,6 +1,5 @@
 package com.FinZen.models.Entities;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import lombok.Data;
 @Table(name = "USUARIOS")
 @Data
 public class Usuarios {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
@@ -51,11 +50,10 @@ public class Usuarios {
     @Column(name = "nombre_usuario", length = 50)
     private String nombreUsuario;
 
- 
-    @Column(name = "tipo_documento", columnDefinition = "ENUM('CEDULA','PASAPORTE', 'TARJETA_DE_IDENTIDAD', 'CEDULA_EXTRANJERA') DEFAULT 'cedula'")
+    @Column(name = "tipo_documento", columnDefinition = "ENUM('CEDULA', 'PASAPORTE', 'TARJETA_DE_IDENTIDAD', 'CEDULA_EXTRANJERA') DEFAULT 'CEDULA'")
     private String tipoDocumento;
 
-    @Column(name = "tipo_persona", columnDefinition = "ENUM('padre_de_familia', 'joven_profesional', 'jubilado', 'personalizado',emprendedor)")
+    @Column(name = "tipo_persona", columnDefinition = "ENUM('padre_de_familia', 'joven_profesional', 'jubilado', 'personalizado', 'emprendedor')")
     private String tipoPersona;
 
     @Column(name = "url_img", length = 200)
@@ -74,7 +72,7 @@ public class Usuarios {
     @JsonIgnore
     private List<PeriodoMesual> periodos = new ArrayList<>();
 
-   @OneToMany(mappedBy = "usuario",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Soporte> soportes = new ArrayList<>();
 }
