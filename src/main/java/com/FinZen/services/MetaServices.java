@@ -1,6 +1,6 @@
 package com.FinZen.services;
 
-import com.FinZen.models.DTOS.Estadisticas;
+import com.FinZen.models.Entities.Estadisticas;
 import com.FinZen.models.DTOS.MetaDto;
 import com.FinZen.models.Entities.Meta;
 import com.FinZen.models.Entities.Usuarios;

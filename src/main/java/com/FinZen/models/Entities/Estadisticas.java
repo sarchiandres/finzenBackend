@@ -1,4 +1,4 @@
-package com.FinZen.models.DTOS;
+package com.FinZen.models.Entities;
 
 import java.math.BigDecimal;
 
