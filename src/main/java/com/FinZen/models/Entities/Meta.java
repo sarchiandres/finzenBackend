@@ -21,7 +21,7 @@ public class Meta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_meta") // Updated to match table schema
+    @Column(name = "id_meta")
     private Long idMeta;
 
     @Column(name = "titulo", length = 150, nullable = false)
@@ -52,7 +52,7 @@ public class Meta {
     private String icon;
 
     @ManyToOne
-    @JoinColumn(name = "id_cuenta", nullable = false)
+    @JoinColumn(name = "id_usuario", nullable = false)
     @JsonIgnore
-    private Cuenta cuenta;
+    private Usuarios usuario;
 }

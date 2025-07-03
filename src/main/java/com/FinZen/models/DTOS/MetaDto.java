@@ -21,7 +21,7 @@ public class MetaDto {
     private String descripcion;
 
     @NotNull(message = "El estado es obligatorio")
-    private String estado; // "creado", "iniciado", "terminado"
+    private String estado;
 
     @NotNull(message = "El valor es obligatorio")
     @DecimalMin(value = "0.01", message = "El valor debe ser mayor a 0")
@@ -30,8 +30,8 @@ public class MetaDto {
     @DecimalMin(value = "0.00", message = "El monto ahorrado no puede ser negativo")
     private BigDecimal montoAhorrado = BigDecimal.ZERO;
 
-    @NotNull(message = "El ID de cuenta es obligatorio")
-    private Long idCuenta;
+    @NotNull(message = "El ID de usuario es obligatorio")
+    private Long idUsuario;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaInicio;
@@ -44,16 +44,15 @@ public class MetaDto {
     @Size(max = 10, message = "El icono no puede exceder 10 caracteres")
     private String icon;
 
-    // Constructores
     public MetaDto() {}
 
     public MetaDto(String titulo, String descripcion, String estado, BigDecimal valor,
-                   Long idCuenta, LocalDate fechaInicio, LocalDate fechaLimite, String icon) {
+                   Long idUsuario, LocalDate fechaInicio, LocalDate fechaLimite, String icon) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.estado = estado;
         this.valor = valor;
-        this.idCuenta = idCuenta;
+        this.idUsuario = idUsuario;
         this.fechaInicio = fechaInicio;
         this.fechaLimite = fechaLimite;
         this.icon = icon;
@@ -62,95 +61,29 @@ public class MetaDto {
     }
 
     // Getters y Setters
-    public Long getIdMeta() {
-        return idMeta;
-    }
+    public Long getIdMeta() { return idMeta; }
+    public void setIdMeta(Long idMeta) { this.idMeta = idMeta; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+    public BigDecimal getValor() { return valor; }
+    public void setValor(BigDecimal valor) { this.valor = valor; }
+    public BigDecimal getMontoAhorrado() { return montoAhorrado; }
+    public void setMontoAhorrado(BigDecimal montoAhorrado) { this.montoAhorrado = montoAhorrado; }
+    public Long getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
+    public LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
+    public LocalDate getFechaLimite() { return fechaLimite; }
+    public void setFechaLimite(LocalDate fechaLimite) { this.fechaLimite = fechaLimite; }
+    public Boolean getEnProgreso() { return enProgreso; }
+    public void setEnProgreso(Boolean enProgreso) { this.enProgreso = enProgreso; }
+    public String getIcon() { return icon; }
+    public void setIcon(String icon) { this.icon = icon; }
 
-    public void setIdMeta(Long idMeta) {
-        this.idMeta = idMeta;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public BigDecimal getValor() {
-        return valor;
-    }
-
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
-
-    public BigDecimal getMontoAhorrado() {
-        return montoAhorrado;
-    }
-
-    public void setMontoAhorrado(BigDecimal montoAhorrado) {
-        this.montoAhorrado = montoAhorrado;
-    }
-
-    public Long getIdCuenta() {
-        return idCuenta;
-    }
-
-    public void setIdCuenta(Long idCuenta) {
-        this.idCuenta = idCuenta;
-    }
-
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public LocalDate getFechaLimite() {
-        return fechaLimite;
-    }
-
-    public void setFechaLimite(LocalDate fechaLimite) {
-        this.fechaLimite = fechaLimite;
-    }
-
-    public Boolean getEnProgreso() {
-        return enProgreso;
-    }
-
-    public void setEnProgreso(Boolean enProgreso) {
-        this.enProgreso = enProgreso;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    // Métodos de utilidad
     public BigDecimal calcularPorcentajeCompletado() {
         if (valor == null || valor.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
@@ -173,7 +106,7 @@ public class MetaDto {
                 ", estado='" + estado + '\'' +
                 ", valor=" + valor +
                 ", montoAhorrado=" + montoAhorrado +
-                ", idCuenta=" + idCuenta +
+                ", idUsuario=" + idUsuario +
                 ", fechaInicio=" + fechaInicio +
                 ", fechaLimite=" + fechaLimite +
                 '}';
