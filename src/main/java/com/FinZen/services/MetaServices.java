@@ -2,10 +2,10 @@ package com.FinZen.services;
 
 import com.FinZen.models.DTOS.Estadisticas;
 import com.FinZen.models.DTOS.MetaDto;
-import com.FinZen.models.Entities.Cuenta;
 import com.FinZen.models.Entities.Meta;
-import com.FinZen.repository.CuentaRepository;
+import com.FinZen.models.Entities.Usuarios;
 import com.FinZen.repository.MetaRepository;
+import com.FinZen.repository.UsuariosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,17 +20,15 @@ public class MetaServices {
     private MetaRepository metaRepository;
 
     @Autowired
-    private CuentaRepository cuentaRepository;
-
+    private UsuariosRepository usuariosRepository;
 
     public List<Meta> obtenerMetasPorUsuario(Long idUsuario) {
         return metaRepository.findMetasByUsuarioId(idUsuario);
     }
 
-
     public Meta createMeta(MetaDto metaDto) {
-        Cuenta cuenta = cuentaRepository.findById(metaDto.getIdCuenta())
-                .orElseThrow(() -> new IllegalArgumentException("Cuenta no encontrada"));
+        Usuarios usuario = usuariosRepository.findById(metaDto.getIdUsuario())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         if (metaDto.getMontoAhorrado().compareTo(metaDto.getValor()) > 0) {
             throw new IllegalArgumentException("El monto ahorrado inicial no puede exceder el valor objetivo");
@@ -45,44 +43,49 @@ public class MetaServices {
         meta.setFechaInicio(metaDto.getFechaInicio());
         meta.setFechaLimite(metaDto.getFechaLimite());
         meta.setEnProgreso(metaDto.getEstado().equalsIgnoreCase("iniciado"));
-        meta.setCuenta(cuenta);
+        meta.setUsuario(usuario);
         meta.setIcon(metaDto.getIcon());
 
         return metaRepository.save(meta);
     }
 
-    public List<Meta> getAllMetas(Long idCuenta) {
-        return metaRepository.findByCuentaIdCuenta(idCuenta);
+    public List<Meta> getAllMetas(Long idUsuario) {
+        return metaRepository.findByUsuarioId(idUsuario);
     }
 
-    public void deleteMeta(Long idMeta) {
+    public void deleteMeta(Long idMeta, Long idUsuario) {
         Meta meta = metaRepository.findById(idMeta)
                 .orElseThrow(() -> new IllegalArgumentException("Meta no encontrada"));
+        if (!meta.getUsuario().getIdUsuario().equals(idUsuario)) {
+            throw new IllegalArgumentException("No tienes permiso para eliminar esta meta");
+        }
         metaRepository.delete(meta);
     }
 
-    public void updateEstado(Long idMeta, String nuevoEstado) {
+    public void updateEstado(Long idMeta, String nuevoEstado, Long idUsuario) {
         Meta meta = metaRepository.findById(idMeta)
                 .orElseThrow(() -> new IllegalArgumentException("Meta no encontrada"));
-
+        if (!meta.getUsuario().getIdUsuario().equals(idUsuario)) {
+            throw new IllegalArgumentException("No tienes permiso para actualizar esta meta");
+        }
         if ("terminado".equals(meta.getEstado()) && !"terminado".equals(nuevoEstado)) {
             throw new IllegalArgumentException("No se puede cambiar una meta terminada a otro estado");
         }
-
         meta.setEstado(nuevoEstado);
         meta.setEnProgreso(nuevoEstado.equalsIgnoreCase("iniciado"));
         metaRepository.save(meta);
     }
 
-    public MetaDto agregarAporte(Long idMeta, BigDecimal montoAporte) {
+    public MetaDto agregarAporte(Long idMeta, BigDecimal montoAporte, Long idUsuario) {
         Meta meta = metaRepository.findById(idMeta)
                 .orElseThrow(() -> new IllegalArgumentException("Meta no encontrada"));
-
+        if (!meta.getUsuario().getIdUsuario().equals(idUsuario)) {
+            throw new IllegalArgumentException("No tienes permiso para aportar a esta meta");
+        }
         BigDecimal nuevoTotal = meta.getMontoAhorrado().add(montoAporte);
         if (nuevoTotal.compareTo(meta.getValor()) > 0) {
             throw new IllegalArgumentException("El monto ahorrado no puede exceder el valor objetivo de la meta");
         }
-
         meta.setMontoAhorrado(nuevoTotal);
         metaRepository.save(meta);
 
@@ -93,7 +96,7 @@ public class MetaServices {
         metaDto.setEstado(meta.getEstado());
         metaDto.setValor(meta.getValor());
         metaDto.setMontoAhorrado(meta.getMontoAhorrado());
-        metaDto.setIdCuenta(meta.getCuenta().getIdCuenta());
+        metaDto.setIdUsuario(meta.getUsuario().getIdUsuario());
         metaDto.setFechaInicio(meta.getFechaInicio());
         metaDto.setFechaLimite(meta.getFechaLimite());
         metaDto.setEnProgreso(meta.getEnProgreso());
@@ -101,14 +104,14 @@ public class MetaServices {
         return metaDto;
     }
 
-    public List<Meta> getProximasMetas(Long idCuenta, int dias) {
+    public List<Meta> getProximasMetas(Long idUsuario, int dias) {
         LocalDate ahora = LocalDate.now();
         LocalDate limite = ahora.plusDays(dias);
-        return metaRepository.findMetasProximas(idCuenta, limite);
+        return metaRepository.findMetasProximas(idUsuario, limite);
     }
 
-    public Estadisticas getEstadisticas(Long idCuenta) {
-        List<Meta> metas = metaRepository.findByCuentaIdCuenta(idCuenta);
+    public Estadisticas getEstadisticas(Long idUsuario) {
+        List<Meta> metas = metaRepository.findByUsuarioId(idUsuario);
         Estadisticas stats = new Estadisticas();
         stats.setTotalMetas(metas.size());
         stats.setMetasCompletadas((int) metas.stream()

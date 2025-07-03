@@ -2,224 +2,120 @@ package com.FinZen.controllers;
 
 import com.FinZen.models.DTOS.MetaDto;
 import com.FinZen.models.Entities.Meta;
+import com.FinZen.security.Jwt.JwtUtils;
 import com.FinZen.services.MetaServices;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/finzen/meta")
+@RequestMapping("/finzen/metas")
 @CrossOrigin(origins = "*")
 public class MetaController {
-
 
     @Autowired
     private MetaServices metaServices;
 
-    @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<List<MetaDto>> obtenerMetasPorUsuario(@PathVariable Long idUsuario) {
-        List<Meta> metas = metaServices.obtenerMetasPorUsuario(idUsuario);
+    @Autowired
+    private JwtUtils jwtUtils;
 
-        List<MetaDto> metasDto = metas.stream().map(meta -> {
-            MetaDto dto = new MetaDto();
-            dto.setIdMeta(meta.getIdMeta());
-            dto.setTitulo(meta.getTitulo());
-            dto.setDescripcion(meta.getDescripcion());
-            dto.setFechaInicio(meta.getFechaInicio());
-            dto.setFechaLimite(meta.getFechaLimite());
-            dto.setEnProgreso(meta.getEnProgreso());
-            dto.setEstado(meta.getEstado());
-            dto.setValor(meta.getValor());
-            dto.setMontoAhorrado(meta.getMontoAhorrado());
-            dto.setIcon(meta.getIcon());
-            dto.setIdCuenta(meta.getCuenta().getIdCuenta()); // accede a la relación
-            return dto;
-        }).collect(Collectors.toList());
-
-        return ResponseEntity.ok(metasDto);
+    @GetMapping
+    public ResponseEntity<?> getMetasByUser(HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            List<Meta> metas = metaServices.getAllMetas(userId);
+            return ResponseEntity.ok(metas);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
-
 
     @PostMapping
-    public ResponseEntity<?> crearMeta(@Valid @RequestBody MetaDto metaDto, BindingResult result) {
-        try {
-            if (result.hasErrors()) {
-                Map<String, String> errors = new HashMap<>();
-                result.getFieldErrors().forEach(error ->
-                        errors.put(error.getField(), error.getDefaultMessage())
-                );
-                return ResponseEntity.badRequest().body(errors);
+    public ResponseEntity<?> createMeta(@RequestBody MetaDto metaDto, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            if (!userId.equals(metaDto.getIdUsuario())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso para crear metas para otro usuario.");
             }
-
-            if (metaDto.getFechaLimite() != null && metaDto.getFechaInicio() != null &&
-                    metaDto.getFechaLimite().isBefore(metaDto.getFechaInicio())) {
-                return ResponseEntity.badRequest()
-                        .body("La fecha límite no puede ser anterior a la fecha de inicio");
-            }
-
-            Meta metaCreada = metaServices.createMeta(metaDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(metaCreada);
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error interno del servidor: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/{idCuenta}")
-    public ResponseEntity<?> obtenerMetas(@PathVariable Long idCuenta) {
-        try {
-            if (idCuenta == null || idCuenta <= 0) {
-                return ResponseEntity.badRequest().body("ID de cuenta inválido");
-            }
-
-            return ResponseEntity.ok(metaServices.getAllMetas(idCuenta));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al obtener las metas: " + e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{idMeta}")
-    public ResponseEntity<?> eliminarMeta(@PathVariable Long idMeta) {
-        try {
-            if (idMeta == null || idMeta <= 0) {
-                return ResponseEntity.badRequest().body("ID de meta inválido");
-            }
-
-            metaServices.deleteMeta(idMeta);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Meta eliminada exitosamente",
-                    "idMeta", idMeta
-            ));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al eliminar la meta: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{idMeta}/estado")
-    public ResponseEntity<?> actualizarEstado(@PathVariable Long idMeta, @RequestBody Map<String, String> request) {
-        try {
-            if (idMeta == null || idMeta <= 0) {
-                return ResponseEntity.badRequest().body("ID de meta inválido");
-            }
-
-            String estado = request.get("estado");
-            if (estado == null || estado.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body("Estado es requerido");
-            }
-
-            if (!estado.matches("^(creado|iniciado|terminado)$")) {
-                return ResponseEntity.badRequest()
-                        .body("Estado inválido. Valores permitidos: creado, iniciado, terminado");
-            }
-
-            metaServices.updateEstado(idMeta, estado);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Estado actualizado exitosamente",
-                    "idMeta", idMeta,
-                    "nuevoEstado", estado
-            ));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al actualizar el estado: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{idMeta}/aporte")
-    public ResponseEntity<?> agregarAporte(@PathVariable Long idMeta, @RequestBody Map<String, Object> request) {
-        try {
-            if (idMeta == null || idMeta <= 0) {
-                return ResponseEntity.badRequest().body("ID de meta inválido");
-            }
-
-            Object montoObj = request.get("montoAhorrado");
-            if (montoObj == null) {
-                return ResponseEntity.badRequest().body("Monto del aporte es requerido");
-            }
-
-            BigDecimal monto;
             try {
-                if (montoObj instanceof Number) {
-                    monto = new BigDecimal(montoObj.toString());
-                } else if (montoObj instanceof String) {
-                    String montoStr = montoObj.toString().replaceAll("[,$]", "");
-                    monto = new BigDecimal(montoStr);
-                } else {
-                    return ResponseEntity.badRequest().body("Formato de monto inválido");
-                }
-            } catch (NumberFormatException e) {
-                return ResponseEntity.badRequest().body("Monto inválido: " + montoObj);
+                Meta metaCreada = metaServices.createMeta(metaDto);
+                return ResponseEntity.ok(metaCreada);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
             }
-
-            if (monto.compareTo(BigDecimal.ZERO) <= 0) {
-                return ResponseEntity.badRequest().body("El monto debe ser mayor a 0");
-            }
-
-            MetaDto metaActualizada = metaServices.agregarAporte(idMeta, monto);
-
-            return ResponseEntity.ok(Map.of(
-                    "message", "Aporte realizado exitosamente",
-                    "idMeta", idMeta,
-                    "montoAportado", monto,
-                    "nuevoMontoAhorrado", metaActualizada.getMontoAhorrado(),
-                    "porcentajeCompletado", metaActualizada.calcularPorcentajeCompletado()
-            ));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al realizar el aporte: " + e.getMessage());
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 
-    @GetMapping("/cuenta/{idCuenta}/proximas-vencer")
-    public ResponseEntity<?> obtenerProximasMetas(@PathVariable Long idCuenta,
-                                                  @RequestParam(defaultValue = "30") int dias) {
-        try {
-            if (idCuenta == null || idCuenta <= 0) {
-                return ResponseEntity.badRequest().body("ID de cuenta inválido");
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<?> updateEstado(@PathVariable Long id, @RequestBody String nuevoEstado, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            try {
+                metaServices.updateEstado(id, nuevoEstado, userId);
+                return ResponseEntity.ok("Estado actualizado exitosamente");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
             }
-
-            if (dias <= 0 || dias > 365) {
-                return ResponseEntity.badRequest()
-                        .body("Días debe estar entre 1 y 365");
-            }
-
-            return ResponseEntity.ok(metaServices.getProximasMetas(idCuenta, dias));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al obtener las metas próximas: " + e.getMessage());
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 
-    @GetMapping("/cuenta/{idCuenta}/estadisticas")
-    public ResponseEntity<?> obtenerEstadisticas(@PathVariable Long idCuenta) {
-        try {
-            if (idCuenta == null || idCuenta <= 0) {
-                return ResponseEntity.badRequest().body("ID de cuenta inválido");
+    @PutMapping("/{id}/aporte")
+    public ResponseEntity<?> agregarAporte(@PathVariable Long id, @RequestBody BigDecimal montoAporte, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            try {
+                MetaDto metaActualizada = metaServices.agregarAporte(id, montoAporte, userId);
+                return ResponseEntity.ok(metaActualizada);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
             }
-
-            return ResponseEntity.ok(metaServices.getEstadisticas(idCuenta));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al obtener las estadísticas: " + e.getMessage());
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteMeta(@PathVariable Long id, HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            try {
+                metaServices.deleteMeta(id, userId);
+                return ResponseEntity.ok("Meta eliminada exitosamente");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
+
+    @GetMapping("/proximas-vencer")
+    public ResponseEntity<?> getProximasMetas(HttpServletRequest request, @RequestParam int dias) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            List<Meta> metas = metaServices.getProximasMetas(userId, dias);
+            return ResponseEntity.ok(metas);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
+
+    @GetMapping("/estadisticas")
+    public ResponseEntity<?> getEstadisticas(HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            return ResponseEntity.ok(metaServices.getEstadisticas(userId));
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 }

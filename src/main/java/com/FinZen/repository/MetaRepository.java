@@ -10,17 +10,16 @@ import org.springframework.data.repository.query.Param;
 
 import com.FinZen.models.Entities.Meta;
 
-public  interface MetaRepository  extends JpaRepository<Meta, Long> {
+public interface MetaRepository extends JpaRepository<Meta, Long> {
 
-    @Query("SELECT m FROM Meta m JOIN m.cuenta c WHERE c.usuarios.idUsuario = :idUsuario")
+    @Query("SELECT m FROM Meta m WHERE m.usuario.idUsuario = :idUsuario")
     List<Meta> findMetasByUsuarioId(@Param("idUsuario") Long idUsuario);
 
     Optional<Meta> findByTitulo(String nombre);
-    List<Meta> findByCuentaIdCuenta(Long idCuenta);
 
-    @Query("SELECT m FROM Meta m WHERE m.cuenta.usuarios.idUsuario = :idUsuario")
+    @Query("SELECT m FROM Meta m WHERE m.usuario.idUsuario = :idUsuario")
     List<Meta> findByUsuarioId(@Param("idUsuario") Long idUsuario);
 
-    @Query("SELECT m FROM Meta m WHERE m.cuenta.idCuenta = :idCuenta AND m.fechaLimite <= :fecha")
-    List<Meta> findMetasProximas(@Param("idCuenta") Long idCuenta, @Param("fecha") LocalDate fechaLimite);
+    @Query("SELECT m FROM Meta m WHERE m.usuario.idUsuario = :idUsuario AND m.fechaLimite <= :fecha")
+    List<Meta> findMetasProximas(@Param("idUsuario") Long idUsuario, @Param("fecha") LocalDate fechaLimite);
 }
