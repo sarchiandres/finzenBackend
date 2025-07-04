@@ -32,7 +32,7 @@ public class UsuariosControllers {
 
     public String token;
 
-// para crear el usuario
+    // para crear el usuario
     @PostMapping
     public ResponseEntity<?> saveUsuario(@RequestBody SignupRequest usuarioDto) {
         try {
@@ -45,37 +45,37 @@ public class UsuariosControllers {
 
     // metodo para traer el usuario por id
     @GetMapping
-public ResponseEntity<?> getPerfil(HttpServletRequest request) {
-     token = jwtUtils.getJwtFromRequest(request);
+    public ResponseEntity<?> getPerfil(HttpServletRequest request) {
+        token = jwtUtils.getJwtFromRequest(request);
 
-    if (token != null && jwtUtils.validateJwtToken(token)) {
-        Long userId = jwtUtils.getUserIdFromJwtToken(token);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
 
-        // Buscar al usuario en la base de datos
-        Usuarios usuario = usuariosServices.finById(userId);
-                
-        return ResponseEntity.ok(usuario);
+            // Buscar al usuario en la base de datos
+            Usuarios usuario = usuariosServices.finById(userId);
+
+            return ResponseEntity.ok(usuario);
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
-}
 
-    
-// para elimnar el usuario
+    // para elimnar el usuario
     @DeleteMapping
     public ResponseEntity<?> deleteUsuario(HttpServletRequest request) {
-         token= jwtUtils.getJwtFromRequest(request);
+        token= jwtUtils.getJwtFromRequest(request);
 
-    if (token != null && jwtUtils.validateJwtToken(token)) {
-        Long userId = jwtUtils.getUserIdFromJwtToken(token);
-        // Buscar al usuario en la base de datos
-        usuariosServices.deleteById(userId);
-        return ResponseEntity.ok("Usuario eliminado exitosamente");
-    }
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            // Buscar al usuario en la base de datos
+            usuariosServices.deleteById(userId);
+            return ResponseEntity.ok("Usuario eliminado exitosamente");
+        }
 
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
-// para actualizar el usuario
+    // para actualizar el usuario
     @PutMapping
     public ResponseEntity<?> putMethodName(HttpServletRequest request, @RequestBody UsuarioDto usuarioDto) {
         token= jwtUtils.getJwtFromRequest(request);
@@ -83,10 +83,10 @@ public ResponseEntity<?> getPerfil(HttpServletRequest request) {
         if (token != null && jwtUtils.validateJwtToken(token)) {
             Long userId = jwtUtils.getUserIdFromJwtToken(token);
             // Buscar al usuario en la base de datos
-           Usuarios usuario= usuariosServices.updateUsuario(userId, usuarioDto);
-            return ResponseEntity.ok(usuario); 
+            Usuarios usuario= usuariosServices.updateUsuario(userId, usuarioDto);
+            return ResponseEntity.ok(usuario);
         }
-    
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 }

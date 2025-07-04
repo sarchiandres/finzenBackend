@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class UsuarioDto {
-    
+
     private String nombre;
     private String correo;
     private String contrasena;
@@ -19,5 +19,5 @@ public class UsuarioDto {
     private String tipoPersona;
     private MultipartFile urlImg;
     private String tipoUsuario;
-    
+
 }

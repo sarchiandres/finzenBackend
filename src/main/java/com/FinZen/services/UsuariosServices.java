@@ -45,17 +45,17 @@ public class UsuariosServices {
         if (usuariosRepository.findByCorreo(usuarioDto.getCorreo()).isPresent()) {
             throw new RuntimeException("El usuario con este correo ya existe");
         }
-    
+
 
         String tipoUsuarioNombre = usuarioDto.getRole() != null ? usuarioDto.getRole().toUpperCase() : "USUARIO";
-         if (!Arrays.asList("USUARIO", "ADMINISTRADOR").contains(tipoUsuarioNombre)) {
+        if (!Arrays.asList("USUARIO", "ADMINISTRADOR").contains(tipoUsuarioNombre)) {
             throw new FinZenException("Role inválido: " + tipoUsuarioNombre + ". Debe ser USUARIO o ADMINISTRADOR");
         }
 
 
         String urlImagen = null;
 
-  
+
         if (usuarioDto.getUrlImg() != null && !usuarioDto.getUrlImg().isEmpty()) {
             try {
                 urlImagen = s3Service.subirArchivo(usuarioDto.getUrlImg());
@@ -65,8 +65,8 @@ public class UsuariosServices {
         }
 
 
-        
-        
+
+
 
         Usuarios usuario = new Usuarios();
         usuario.setNombre(usuarioDto.getNombre());
@@ -79,15 +79,15 @@ public class UsuariosServices {
         usuario.setNombreUsuario(usuarioDto.getNombreUsuario());
         usuario.setTipoDocumento(usuarioDto.getTipoDocumento());
         usuario.setTipoPersona(usuarioDto.getTipoPersona());
-        usuario.setUrlImg(urlImagen); 
+        usuario.setUrlImg(urlImagen);
 
         TipoUsuario tipoUsuario = tipoUsuarioRepository.findByNombre(tipoUsuarioNombre)
                 .orElseThrow(() -> new FinZenException("El tipo de usuario '" + tipoUsuarioNombre + "' no existe"));
         usuario.setTipoUsuario(tipoUsuario);
 
         Usuarios savedUsuario = usuariosRepository.save(usuario);
-        
-         Map<String, Object> responseData = new HashMap<>();
+
+        Map<String, Object> responseData = new HashMap<>();
         responseData.put("id", savedUsuario.getIdUsuario());
         responseData.put("nombre", savedUsuario.getNombre());
         responseData.put("correo", savedUsuario.getCorreo());
@@ -95,7 +95,7 @@ public class UsuariosServices {
         responseData.put("tipoUsuarioId", savedUsuario.getTipoUsuario().getIdTipoUsuario());
         responseData.put("tipoUsuarioNombre", savedUsuario.getTipoUsuario().getNombre());
 
-       
+
         return responseData;
     }
 
@@ -113,15 +113,15 @@ public class UsuariosServices {
         try {
             usuariosRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-                    
-                    usuariosRepository.deleteById(id);
-                    return "Usuario eliminado correctamente";
 
-                    
+            usuariosRepository.deleteById(id);
+            return "Usuario eliminado correctamente";
+
+
         } catch (RuntimeException e) {
             return e.getMessage();
         }
-        
+
     }
 
 
@@ -129,7 +129,7 @@ public class UsuariosServices {
 
     // method to update user by id
     public Usuarios updateUsuario(Long id, UsuarioDto usuarioDto) {
-        
+
         Usuarios usuario = usuariosRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -166,7 +166,7 @@ public class UsuariosServices {
         }
         String urlImagen = null;
 
-  
+
         if (usuarioDto.getUrlImg() != null && !usuarioDto.getUrlImg().isEmpty()) {
             try {
                 urlImagen = s3Service.subirArchivo(usuarioDto.getUrlImg());
@@ -176,12 +176,12 @@ public class UsuariosServices {
             }
         }
         return usuariosRepository.save(usuario);
-        }
+    }
 
 
 
 
-/*Funtions this admi */
+    /*Funtions this admi */
 
     public List<Usuarios> findAll() {
         return usuariosRepository.findAll();
@@ -190,16 +190,16 @@ public class UsuariosServices {
 
 
     public String deleteUsuarioByOtroUsuario(Long idUsuarioSolicitante, Long idUsuarioAEliminar) {
-       
+
         Usuarios usuarioSolicitante = usuariosRepository.findById(idUsuarioSolicitante)
                 .orElseThrow(() -> new RuntimeException("Usuario solicitante no encontrado"));
 
-      
+
         Usuarios usuarioAEliminar = usuariosRepository.findById(idUsuarioAEliminar)
                 .orElseThrow(() -> new RuntimeException("Usuario a eliminar no encontrado"));
 
-        
-        if (usuarioSolicitante.getTipoUsuario().getNombre().equals("ADMINISTRADOR")) { 
+
+        if (usuarioSolicitante.getTipoUsuario().getNombre().equals("ADMINISTRADOR")) {
             throw new RuntimeException("El usuario solicitante no tiene permisos para eliminar a otro usuario");
         }
 
@@ -207,5 +207,5 @@ public class UsuariosServices {
         usuariosRepository.deleteById(idUsuarioAEliminar);
 
         return "Usuario con ID " + idUsuarioAEliminar + " eliminado correctamente ";
-    }  
+    }
 }

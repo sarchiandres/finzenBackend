@@ -14,7 +14,7 @@ import com.FinZen.repository.UsuariosRepository;
 
 @Service
 public class CuentaServices {
-    
+
     @Autowired
     private CuentaRepository cuentaRepository;
     @Autowired
@@ -28,10 +28,10 @@ public class CuentaServices {
         if (cuentaDto.getMonto() == null || cuentaDto.getMonto().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("El monto debe ser mayor o igual a cero");
         }
-       if (cuentaRepository.findByNombre(cuentaDto.getNombre()).isPresent()) {
+        if (cuentaRepository.findByNombre(cuentaDto.getNombre()).isPresent()) {
             throw new RuntimeException("El nombre de cuenta " + cuentaDto.getNombre() + " ya existe");
         }
-       
+
 
         Usuarios usuario = usuariosRepository.findById(cuentaDto.getIdUsuario())
                 .orElseThrow(() -> new RuntimeException("No se encontró el usuario con ID: " + cuentaDto.getIdUsuario()));
@@ -41,13 +41,13 @@ public class CuentaServices {
         cuenta.setMonto(cuentaDto.getMonto());
         cuenta.setUsuarios(usuario);
         cuenta.setMontoLibre(cuentaDto.getMonto());
-        
+
         return cuentaRepository.save(cuenta);
     }
 
     public List<Cuenta> getAccountByUserId(Long idUsuario) {
         List<Cuenta> cuentas =  cuentaRepository.findByUsuariosIdUsuario(idUsuario);
-                return cuentas;
+        return cuentas;
     }
 
     public Cuenta updCuenta (Long idCuenta, CuentaDto cuentaDto) {
@@ -56,7 +56,7 @@ public class CuentaServices {
         if (cuentaDto.getMonto() == null || cuentaDto.getMonto().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("El monto debe ser mayor o igual a cero");
         }
-       if (cuentaRepository.findByNombre(cuentaDto.getNombre()).isPresent()) {
+        if (cuentaRepository.findByNombre(cuentaDto.getNombre()).isPresent()) {
             throw new RuntimeException("El nombre de cuenta " + cuentaDto.getNombre() + " ya existe");
         }
 
