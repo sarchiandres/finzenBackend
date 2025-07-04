@@ -20,7 +20,7 @@ import lombok.Data;
 @Table(name = "USUARIOS")
 @Data
 public class Usuarios {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
@@ -50,10 +50,11 @@ public class Usuarios {
     @Column(name = "nombre_usuario", length = 50)
     private String nombreUsuario;
 
-    @Column(name = "tipo_documento", columnDefinition = "ENUM('CEDULA','PASAPORTE', 'TARJETA_DE_IDENTIDAD', 'CEDULA_EXTRANJERA') DEFAULT 'CEDULA'")
+ 
+    @Column(name = "tipo_documento", columnDefinition = "ENUM('CEDULA','PASAPORTE', 'TARJETA_DE_IDENTIDAD', 'CEDULA_EXTRANJERA') DEFAULT 'cedula'")
     private String tipoDocumento;
 
-    @Column(name = "tipo_persona", columnDefinition = "ENUM('padre_de_familia', 'joven_profesional', 'jubilado', 'personalizado','emprendedor')")
+    @Column(name = "tipo_persona", columnDefinition = "ENUM('padre_de_familia', 'joven_profesional', 'jubilado', 'personalizado',emprendedor)")
     private String tipoPersona;
 
     @Column(name = "url_img", length = 200)

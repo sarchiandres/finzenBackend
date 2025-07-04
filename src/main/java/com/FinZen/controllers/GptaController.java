@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/finzen/gpt")
@@ -46,4 +49,20 @@ public class GptaController {
         PrompResponseDto responseDto = gptServices.sendRequestToOpenAi2(requestDto);
         return ResponseEntity.ok(responseDto);
     }
+
+    @GetMapping
+    public ResponseEntity<?> getMethodName(HttpServletRequest request) {
+        token = jwtUtils.getJwtFromRequest(request);
+
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+    
+            PrompResponseDto responseDto = gptServices.notificaTions(userId);
+                    
+            return ResponseEntity.ok(responseDto);
+        }
+    
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
+    }
+    
 }

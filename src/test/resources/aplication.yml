@@ -1,0 +1,35 @@
+# src/test/resources/application.yml
+
+# Propiedades para el entorno de pruebas
+# Estas credenciales dummy solo permiten que el contexto de Spring se cargue
+# No las uses para interactuar con servicios reales como AWS, Google o Mailgun.
+
+spring:
+  # Configuraciones de AWS para pruebas
+  aws:
+    region: us-east-2 # Puedes usar una región dummy diferente o la misma
+    access-key: ${AWS_ACC_KEY}
+    secret-key: ${AWS_SEC_KEY}
+  # Configuraciones de OpenAI para pruebas
+  ai:
+    openai:
+      api-key: dummy_gpt_key # Clave dummy para pruebas
+
+  # Configuraciones de correo para pruebas
+  mail:
+    username: test@example.com # Email dummy
+    password: dummy_email_key # Contraseña dummy
+
+  # Configuraciones de JWT para pruebas
+  app:
+    jwtSecret: dummy_jwt_secret # Secreto dummy
+    jwtExpirationMs: 3600000 # El tiempo de expiración puede ser el mismo o uno más corto si lo prefieres para tests
+
+# Las configuraciones de datasource y JPA generalmente no necesitan ser sobrescritas
+# para un simple test de carga de contexto a menos que estés probando la capa de base de datos.
+# Si tus tests no interactúan con la base de datos, estas propiedades no son estrictamente necesarias aquí,
+# pero si lo son, podrías dejarlas o apuntar a una base de datos en memoria como H2.
+# En un test unitario simple, no se suele levantar toda la infraestructura de la base de datos.
+# Si tu test de @SpringBootTest está cargando la base de datos, considera usar @DataJpaTest
+# o configurar H2 para tests.
+# Por simplicidad, si solo es para que contextLoads pase, no las necesitas aquí.

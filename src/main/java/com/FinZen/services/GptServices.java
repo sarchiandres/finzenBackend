@@ -15,7 +15,7 @@ import com.FinZen.repository.GastosRepository;
 import com.FinZen.repository.IngresosRepository;
 import com.FinZen.repository.MetaRepository;
 import com.FinZen.repository.PresupuestoRepository;
-import com.FinZen.repository.UsuariosRepository;
+
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,12 +71,12 @@ Eres Zennin, una ardilla que esta como asistente virtual financiero especializad
 
 Tu objetivo es ayudar a los usuarios a comprender su situación financiera. Puedes responder preguntas relacionadas con:
 
-- Inversiones (como CDT, acciones, fondos), con una cantidad de dinero o sin ella.
-- Ahorros.
-- Tipos de cuentas.
-- Recomendaciones financieras.
-- Todo lo que tenga que ver con finanzas.
-- cada vez que te dirijas al usuario primero hazlo por el nombre o por el nombre de usuario
+- Inversiones (como CDT, acciones, fondos), con una cantidad de dinero o sin ella, se breve y no des un mesaje tan largo .
+- Ahorros, se breve y no des un mesaje tan largo.
+- Tipos de cuentas, se breve y no des un mesaje tan largo.
+- Recomendaciones financieras, se breve y no des un mesaje tan largo.
+- Todo lo que tenga que ver con finanzas, se breve y no des un mesaje tan largo.
+- cada vez que te dirijas al usuario primero hazlo  por el nombre de usuario, se breve y no des un mesaje tan largo
 
 Tu moneda de referencia es el peso colombiano (COP). Si mencionas cantidades, hazlo en COP.
 
@@ -123,6 +123,31 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
     }
 
 
+    public PrompResponseDto notificaTions(Long idUsuario) {
+        String contextoGastos = obtenerContextoGastosPorUsuario(idUsuario);
+        String contextoIngresos = obtenerContextoIngresosPorUsuario(idUsuario);
+        String contextoMetas = obtenerContextoMetasPorUsuario(idUsuario);
+        String contextoPresupuestos = ObtenerPresupuestosporUsuario(idUsuario);
+        String contextoCuentas = ObtenerContextoPorcuenta(idUsuario);
+        String contextoDeudas = ObtenerDeudaPorIdUsuario(idUsuario);
+        String contextoUsuer = conextoUser(idUsuario);
+    
+        String response = chatClient.prompt()
+                .system("""
+                        Dame un consejo segun mis datos siempre llamame por mi nombre 
+                        """)
+                .user("Datos  personales y financieros del usuario:\n"+contextoUsuer + contextoGastos + "\n" + contextoIngresos +
+                        contextoMetas+contextoPresupuestos+contextoCuentas+contextoDeudas+"\n\nPregunta del usuario: " )
+                .call()
+                .content();
+        
+        
+        return new PrompResponseDto(response);
+    }
+
+
+
+
 
     public String obtenerContextoIngresosPorUsuario(Long idUsuario) {
         List<Ingresos> ingresos = ingresoRepository.findByUsuarioId(idUsuario);
@@ -136,7 +161,7 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
             contexto.append("- ")
                     .append(ingreso.getNombre()).append(": $")
                     .append(ingreso.getMonto()).append(" (")
-                    .append(ingreso.getFuente()).append(")\n");
+                    .append(ingreso.getDescripcion()).append(")\n");
         }
         return contexto.toString();
     }
