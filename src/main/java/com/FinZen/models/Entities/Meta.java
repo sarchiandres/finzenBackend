@@ -55,4 +55,10 @@ public class Meta {
     @JoinColumn(name = "id_usuario", nullable = false)
     @JsonIgnore
     private Usuarios usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "id_cuenta", nullable = false)
+    @JsonIgnore
+    private Cuenta cuenta;
+
 }
