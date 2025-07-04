@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY target/FinZen-0.0.1-SNAPSHOT.jar app.jar
 
-COPY .env .env
+
 
 EXPOSE 8080
 
