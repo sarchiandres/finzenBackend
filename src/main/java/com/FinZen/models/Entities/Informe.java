@@ -22,13 +22,7 @@ public class Informe {
     @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
 
-    // Constructores
-    public Informe() {}
-
-    public Informe(Usuarios usuario, String descripcion) {
-        this.usuario = usuario;
-        this.descripcion = descripcion;
-    }
+    
 
     
 }

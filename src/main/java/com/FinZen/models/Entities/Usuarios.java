@@ -68,7 +68,7 @@ public class Usuarios {
     @JsonIgnore
     private List<Cuenta> cuentas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "usuarios", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Informe> informe = new ArrayList<>();
 
