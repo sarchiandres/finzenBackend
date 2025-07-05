@@ -1,23 +1,14 @@
 package com.FinZen.controllers;
 
-import java.time.LocalDate; // Importar LocalDate para el nombre del archivo PDF
-import java.util.Optional;
-
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException; // Ya no necesario si no se usa directamente
-import org.springframework.web.bind.annotation.GetMapping; // Cambiado a GetMapping
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import com.FinZen.models.DTOS.InformeDto;
 import com.FinZen.security.Jwt.JwtUtils;
-import com.FinZen.services.InformeService; // Asegúrate de que el paquete sea 'service' si lo cambiaste
-                                         // En tu código anterior era 'services', lo he corregido a 'service'
-                                         // para que coincida con el ejemplo anterior
-
+import com.FinZen.services.InformeService;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -30,56 +21,126 @@ public class InformeController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    /**
-     * Obtiene el ID del usuario autenticado a partir del token JWT en la solicitud.
-     * Lanza AccessDeniedException si el token es inválido o no está presente.
-     *
-     * @param request La solicitud HTTP actual.
-     * @return El ID (Long) del usuario autenticado.
-     * @throws AccessDeniedException Si el token JWT no es válido o no se puede extraer el ID.
-     */
-    private Long getAuthenticatedUserId(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromRequest(request); // Asume que getJwtFromRequest extrae "Bearer token"
-                                                        // o solo el token si lo envías directamente.
-        if (jwt == null || !jwtUtils.validateJwtToken(jwt)) {
-            throw new AccessDeniedException("Token inválido o no proporcionado.");
+    @PostMapping("/generar")
+    public ResponseEntity<?> generarInforme(HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            try {
+                InformeDto informe = informeService.generarInformeCompleto(userId);
+                return ResponseEntity.ok(informe);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al generar el informe: " + e.getMessage());
+            }
         }
-        return jwtUtils.getUserIdFromJwtToken(jwt); // Asume que getUserIdFromJwtToken devuelve Long
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Token inválido o no proporcionado.");
     }
 
-    // Cambiado a @GetMapping ya que generar un informe típicamente no tiene efectos secundarios
-    // significativos para ser un POST y la obtención de datos suele ser GET.
-    // También se eliminó @PreAuthorize según tu solicitud.
-    @GetMapping("/generar")
-    public ResponseEntity<?> generarInforme(HttpServletRequest request) {
-        try {
-            Long userId = getAuthenticatedUserId(request);
-
-            Optional<byte[]> pdfBytesOpt = informeService.generarYObtenerInformePdf(userId);
-
-            if (pdfBytesOpt.isPresent()) {
-                byte[] pdfBytes = pdfBytesOpt.get();
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_PDF);
-                // Nombre de archivo más descriptivo, incluyendo la fecha y el ID del usuario
-                String filename = "informe_financiero_" + LocalDate.now() + "_user_" + userId + ".pdf";
-                headers.setContentDispositionFormData("attachment", filename);
-                headers.setContentLength(pdfBytes.length);
-
-                return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
-            } else {
-                // Si el servicio devuelve Optional.empty(), significa que no se pudo generar por alguna razón.
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No se pudo generar o encontrar el informe PDF para el usuario con ID: " + userId + ". Verifique si el usuario existe o si la operación fue exitosa.");
+    @GetMapping
+    public ResponseEntity<?> getInformes(HttpServletRequest request,
+                                        @RequestParam(value = "usuarioId", required = false) Long usuarioId) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long authUserId = jwtUtils.getUserIdFromJwtToken(token);
+            Long targetUserId = (usuarioId != null) ? usuarioId : authUserId;
+            try {
+                List<InformeDto> informes = informeService.getInformesByUsuarioId(targetUserId);
+                return ResponseEntity.ok(informes);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al obtener los informes: " + e.getMessage());
             }
-        } catch (AccessDeniedException e) {
-            // Captura la excepción de autenticación/autorización de getAuthenticatedUserId
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        } catch (Exception e) {
-            // Log del error para depuración
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error interno del servidor al generar el informe: " + e.getMessage());
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Token inválido o no proporcionado.");
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getInformeById(HttpServletRequest request,
+    @PathVariable("id") Long id,
+        @RequestParam(value = "usuarioId", required = false) Long usuarioId) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long authUserId = jwtUtils.getUserIdFromJwtToken(token);
+            Long targetUserId = (usuarioId != null) ? usuarioId : authUserId;
+            try {
+                InformeDto informe = informeService.getInformeByIdAndUsuario(id, targetUserId);
+                return ResponseEntity.ok(informe);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(e.getMessage());
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al obtener el informe: " + e.getMessage());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Token inválido o no proporcionado.");
+    }
+
+    @GetMapping("/admin/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> getInformeByIdForAdmin(@PathVariable("id") Long id) {
+        try {
+            InformeDto informe = informeService.getInformeByIdForAdmin(id);
+            return ResponseEntity.ok(informe);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener el informe: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<?> getAllInformesForAdmin() {
+        try {
+            List<InformeDto> informes = informeService.getAllInformesForAdmin();
+            return ResponseEntity.ok(informes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener los informes: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteInforme(HttpServletRequest request, @PathVariable("id") Long id) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            try {
+                String mensaje = informeService.deleteInformeByIdAndUsuario(id, userId);
+                return ResponseEntity.ok(mensaje);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(e.getMessage());
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al eliminar el informe: " + e.getMessage());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Token inválido o no proporcionado.");
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteAllInformes(HttpServletRequest request) {
+        String token = jwtUtils.getJwtFromRequest(request);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
+            try {
+                String mensaje = informeService.deleteAllInformesByUsuario(userId);
+                return ResponseEntity.ok(mensaje);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error al eliminar los informes: " + e.getMessage());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Token inválido o no proporcionado.");
     }
 }

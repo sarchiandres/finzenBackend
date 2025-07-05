@@ -1,11 +1,9 @@
 package com.FinZen.models.Entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 @Entity
-@Table(name = "INFORME")
-@Data
+@Table(name = "informe")
 public class Informe {
 
     @Id
@@ -13,19 +11,12 @@ public class Informe {
     @Column(name = "id_informe")
     private Long idInforme;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = true)
     private Usuarios usuario;
 
     @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
-
-    @Column(name = "tipo_informe") 
-    private String tipoInforme;
-
-     @Column(name = "fecha_generacion") 
-    private LocalDate fechaGeneracion;
 
     // Constructores
     public Informe() {}
