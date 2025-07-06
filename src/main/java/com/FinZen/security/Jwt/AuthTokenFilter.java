@@ -51,6 +51,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             logger.error("No se puede establecer la autenticación del usuario: {}", e.getMessage());
+            e.printStackTrace();
         }
 
         filterChain.doFilter(request, response);
