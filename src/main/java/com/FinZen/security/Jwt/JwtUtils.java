@@ -81,7 +81,7 @@ public class JwtUtils {
     }
 
     // Obtener el token JWT desde el encabezado de la solicitud
-    public static String getJwtFromRequest(HttpServletRequest request) {
+    public String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7); // Eliminar el prefijo "Bearer " para obtener solo el token
