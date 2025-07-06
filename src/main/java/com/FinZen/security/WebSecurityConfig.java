@@ -41,7 +41,7 @@ public class WebSecurityConfig {
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
 
-    @Bean
+    @Autowired
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
