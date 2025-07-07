@@ -13,7 +13,7 @@ public class SignupRequest {
     private String tipoDocumento;
     private String paisResidencia;
     private Long ingresoMensual;
-    private Boolean metaActual;
+    private Long metaActual;
     private String nombreUsuario;
     private String tipoPersona;
     private MultipartFile urlImg;

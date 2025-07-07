@@ -13,7 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value.Str;
+
 
 @Entity
 @Table(name = "password_reset_token")

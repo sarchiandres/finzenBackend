@@ -49,7 +49,9 @@ spring:
 
   app:
     jwtSecret: ${JWK_SECRET}
-    jwtExpirationMs: 3600000
+
+    jwtExpirationMs: 97200000 
+
 
   aws:
     region: us-east-2

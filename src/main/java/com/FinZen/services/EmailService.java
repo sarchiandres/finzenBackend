@@ -141,7 +141,7 @@ public class EmailService {
                     "    <div class='content'>" + 
                     "      <p>Gracias por elegirnos bienvenido a</strong> FinZen.</p>" +
                     "      <p><strong>Fecha y hora de registro:</strong> " + LocalDateTime.now() + "</p>" +
-                    "      <p></p>" +
+                    "      <p>Si no fuiste tú,cambia tu contraseña inmediatamente.</p>" +
                     "    </div>" +
                     "    <div class='footer'>" +
                     "      <p>FinZen - Gestiona tus finanzas con facilidad.</p>" +

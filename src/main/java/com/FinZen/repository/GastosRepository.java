@@ -28,4 +28,7 @@ public interface GastosRepository extends JpaRepository<Gastos, Long> {
 
      @Query("SELECT SUM(g.monto) FROM Gastos g WHERE g.presupuesto.id = :presupuestoId")
     Optional<BigDecimal> sumMontoByPresupuestoId(@Param("presupuestoId") Long presupuestoId);
+
+    @Query("SELECT g FROM Gastos g WHERE g.presupuesto.cuenta.usuarios.idUsuario = :userId AND g.fecha BETWEEN :startDate AND :endDate")
+    List<Gastos> findByUsuarioIdAndFechaBetween(@Param("userId") Long userId, @Param("startDate") String startDate, @Param("endDate") String endDate);
 }

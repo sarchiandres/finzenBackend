@@ -1,5 +1,6 @@
 package com.FinZen.repository;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -30,3 +31,4 @@ public interface InformeRepository extends JpaRepository<Informe, Long> {
     @Query("DELETE FROM Informe i WHERE i.usuario.idUsuario = :usuarioId")
     void deleteByUsuarioId(@Param("usuarioId") Long usuarioId);
 }
+
