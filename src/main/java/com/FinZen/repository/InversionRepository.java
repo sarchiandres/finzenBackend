@@ -1,9 +1,12 @@
 package com.FinZen.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.FinZen.models.Entities.Inversion;
 
 public interface InversionRepository extends JpaRepository<Inversion, Long> {
     List<Inversion> findByIdUsuario(Long idUsuario);
+
+      List<Inversion> findByIdUsuarioAndFechaInicioBetween(Long idUsuario, LocalDate startDate, LocalDate endDate);
 }
