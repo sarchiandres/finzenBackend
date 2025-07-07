@@ -9,7 +9,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class FinZenApplication {
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.load();
+		Dotenv dotenv = Dotenv.configure()
+		.directory("/app")
+		.load();
 
 		// Poner variables en System properties ANTES
 		// de SpringApplication.run()
