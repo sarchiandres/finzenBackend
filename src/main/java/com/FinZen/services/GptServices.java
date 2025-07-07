@@ -41,7 +41,7 @@ public class GptServices {
     @Autowired
     private PresupuestoRepository presupuestoRepository;
 
-    @Autowired  
+    @Autowired
     private CuentaRepository cuentaRepository;
 
     @Autowired
@@ -131,7 +131,7 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
         String contextoCuentas = ObtenerContextoPorcuenta(idUsuario);
         String contextoDeudas = ObtenerDeudaPorIdUsuario(idUsuario);
         String contextoUsuer = conextoUser(idUsuario);
-    
+
         String response = chatClient.prompt()
                 .system("""
                         Dame un consejo segun mis datos siempre llamame por mi nombre 
@@ -140,8 +140,8 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
                         contextoMetas+contextoPresupuestos+contextoCuentas+contextoDeudas+"\n\nPregunta del usuario: " )
                 .call()
                 .content();
-        
-        
+
+
         return new PrompResponseDto(response);
     }
 
@@ -176,7 +176,7 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
         StringBuilder contexto = new StringBuilder("metas del usuario:\n");
         for (Meta meta : metas) {
             contexto.append("- ")
-                    .append(meta.getTitulo()) 
+                    .append(meta.getTitulo())
                     .append(meta.getDescripcion())
                     .append(meta.getFechaInicio())
                     .append(meta.getFechaLimite()).append(")\n");
@@ -186,7 +186,7 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
 
     public String obtenerContextoGastosPorUsuario(Long idUsuario) {
 
-    
+
         List<Gastos> gastos = gastosRepository.getGastosByUsuarioId(idUsuario);
 
         if (gastos.isEmpty()) {
@@ -257,7 +257,7 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
     }
 
     public String conextoUser(Long id) {
-    
+
         Usuarios usuario = usuariosServices.finById(id);
         if (usuario == null) {
             return "no se encontro el usuario ";
@@ -269,7 +269,7 @@ Si la pregunta no está relacionada con finanzas o el sistema FinZen, responde c
                 .append(usuario.getNombreUsuario())
                 .append(usuario.getTipoPersona())
                 .append(usuario.getPaisResidencia());
-                
+
         return contexto.toString();
     }
 

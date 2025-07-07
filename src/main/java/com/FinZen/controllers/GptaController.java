@@ -29,21 +29,21 @@ public class GptaController {
     // metodo par el chat de usuario registrado
     @PostMapping("/user")
     public ResponseEntity<?> promptOpenAiConContexto(@RequestBody PromptRequestDto requestDto, HttpServletRequest request) {
-      
+
         token = jwtUtils.getJwtFromRequest(request);
 
-    if (token != null && jwtUtils.validateJwtToken(token)) {
-        Long userId = jwtUtils.getUserIdFromJwtToken(token);
+        if (token != null && jwtUtils.validateJwtToken(token)) {
+            Long userId = jwtUtils.getUserIdFromJwtToken(token);
 
-        PrompResponseDto responseDto = gptServices.sendRequestToOpenAi(requestDto, userId);
-                
-        return ResponseEntity.ok(responseDto);
+            PrompResponseDto responseDto = gptServices.sendRequestToOpenAi(requestDto, userId);
+
+            return ResponseEntity.ok(responseDto);
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
 
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
-    }
-
-    // chat para usuarios no registrados 
+    // chat para usuarios no registrados
     @PostMapping("/noUser")
     public ResponseEntity<PrompResponseDto> promptOpenAiSinContexto(@RequestBody PromptRequestDto requestDto) {
         PrompResponseDto responseDto = gptServices.sendRequestToOpenAi2(requestDto);
@@ -56,13 +56,13 @@ public class GptaController {
 
         if (token != null && jwtUtils.validateJwtToken(token)) {
             Long userId = jwtUtils.getUserIdFromJwtToken(token);
-    
+
             PrompResponseDto responseDto = gptServices.notificaTions(userId);
-                    
+
             return ResponseEntity.ok(responseDto);
         }
-    
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o no proporcionado.");
     }
-    
+
 }

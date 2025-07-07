@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/FinZen
+    url: jdbc:mysql://switchback.proxy.rlwy.net:47889/railway
     username: root
-    password: 1234
+    password: jara123
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       connection-timeout: 30000
@@ -10,7 +10,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     properties:
       hibernate:
@@ -26,7 +28,7 @@ spring:
         options:
           model: gpt-4o
 
-  
+
 
   mail:
     host: smtp.gmail.com
@@ -51,14 +53,14 @@ spring:
 
   app:
     jwtSecret: ${JWK_SECRET}
-    jwtExpirationMs: 3600000 
+    jwtExpirationMs: 3600000
 
   aws:
     region: us-east-2
     bucket-name: imagenes-finzen
     access-key: ${AWS_ACC_KEY}
     secret-key: ${AWS_SEC_KEY}
-#
+  #
 
   logging:
     level:
